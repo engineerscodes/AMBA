@@ -1,6 +1,9 @@
 package org.amba.app.Entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.amba.app.Util.Answer;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -11,6 +14,10 @@ import org.hibernate.type.SqlTypes;
 import java.util.List;
 import java.util.UUID;
 
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 public class Question {
 
@@ -25,6 +32,10 @@ public class Question {
     @ManyToOne
     @JoinColumn(name = "fk_project_uuid",referencedColumnName = "id")
     private Project project;
+
+    @Column(name = "question_img")
+    @Lob
+    private byte[] question;
 
 
     @JdbcTypeCode(SqlTypes.JSON)
