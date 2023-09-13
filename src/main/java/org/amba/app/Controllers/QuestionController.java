@@ -7,7 +7,7 @@ import org.amba.app.Entity.Type;
 import org.amba.app.Repo.ProjectRepo;
 import org.amba.app.Repo.TypeRepo;
 import org.amba.app.Service.QuestionService;
-import org.amba.app.Util.Answer;
+import org.amba.app.Util.Options;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -50,13 +50,13 @@ public class QuestionController {
         return ResponseEntity.ok().body(null);
     }
 
-    @GetMapping("/new")
+    @PostMapping("/new")
     private Question addQuestion(@RequestPart("projectId") String prjID, @RequestPart("QuestionImage") MultipartFile questionImage,
-    @RequestPart("answers") List<Answer> answer) throws IOException {
+    @RequestPart("options") List<Options> options , @RequestPart("answer_id") Long answer_id) throws IOException {
 
         Project p = questionService.checkValidProject(prjID);
         if(p == null) return null;
-        Question question =  new Question(UUID.randomUUID(),p,questionImage.getBytes(),answer);
+        Question question =  new Question(UUID.randomUUID(),p,questionImage.getBytes(),options,answer_id);
         return questionService.addNewQuestion(question);
     }
 
