@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.amba.app.Util.Answer;
+import org.amba.app.Util.Options;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
@@ -40,5 +40,11 @@ public class Question {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-    private List<Answer> answers;
+    private List<Options> options;
+
+
+    @Column(name = "answer_index")
+    private long answer_id;
+
+
 }
