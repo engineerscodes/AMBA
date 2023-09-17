@@ -20,4 +20,6 @@ public interface ProjectMapper {
 
     List<ProjectDto> ProjectsToProjectsDto(List<Project> p);
 
+    List<ProjectDto> ProjectToProjectsNoImageDto(List<Project> p);
+
 }
