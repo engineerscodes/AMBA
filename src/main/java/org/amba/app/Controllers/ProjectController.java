@@ -1,6 +1,8 @@
 package org.amba.app.Controllers;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.amba.app.Dto.ProjectDto;
 import org.amba.app.Entity.Project;
 import org.amba.app.Mapper.ProjectMapper;
@@ -29,7 +31,7 @@ public class ProjectController {
 
     @GetMapping("/list")
     private ResponseEntity<List<ProjectDto>> getAllProjects(){
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(projectMapper.ProjectsToProjectsDto(projectRepo.findAll()));
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(projectMapper.ProjectToProjectsNoImageDto(projectRepo.findAll()));
     }
 
     @GetMapping("/{id}")
@@ -43,6 +45,11 @@ public class ProjectController {
          }
     }
 
+
+    @GetMapping("/list/noImage")
+    private ResponseEntity<List<ProjectDto>> getAllProjectsNoImage(){
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(projectMapper.ProjectsToProjectsDto(projectRepo.findAll()));
+    }
 
 
 
