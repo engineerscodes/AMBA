@@ -10,6 +10,7 @@ import org.amba.app.Service.QuestionService;
 import org.amba.app.Util.Options;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,14 +51,15 @@ public class QuestionController {
         return ResponseEntity.ok().body(null);
     }
 
-    @PostMapping("/new")
+    @PostMapping(value = "/new",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     private Question addQuestion(@RequestPart("projectId") String prjID, @RequestPart("QuestionImage") MultipartFile questionImage,
     @RequestPart("options") List<Options> options , @RequestPart("answer_id") Long answer_id) throws IOException {
 
         Project p = questionService.checkValidProject(prjID);
-        if(p == null) return null;
+       /** if(p == null) return null;
         Question question =  new Question(UUID.randomUUID(),p,questionImage.getBytes(),options,answer_id);
-        return questionService.addNewQuestion(question);
+        return questionService.addNewQuestion(question);**/
+       return new Question();
     }
 
 }

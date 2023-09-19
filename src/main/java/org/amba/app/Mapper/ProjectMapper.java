@@ -1,6 +1,7 @@
 package org.amba.app.Mapper;
 
 import org.amba.app.Dto.ProjectDto;
+import org.amba.app.Dto.ProjectNoImageDto;
 import org.amba.app.Entity.Project;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -20,6 +21,6 @@ public interface ProjectMapper {
 
     List<ProjectDto> ProjectsToProjectsDto(List<Project> p);
 
-    List<ProjectDto> ProjectToProjectsNoImageDto(List<Project> p);
+    List<ProjectNoImageDto> ProjectToProjectsNoImageDto(List<Project> p);
 
 }

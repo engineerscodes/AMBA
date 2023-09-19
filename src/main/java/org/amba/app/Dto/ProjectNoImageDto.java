@@ -13,7 +13,7 @@ public class ProjectNoImageDto {
 
     private String projectName;
 
-
+    @JsonIgnore
     private byte[] image;
 
 }
