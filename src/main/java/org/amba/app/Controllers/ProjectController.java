@@ -60,6 +60,7 @@ public class ProjectController {
     @PostMapping("/new")
     private ResponseEntity<String> newProject(@RequestPart("projectName") String name, @RequestPart("image") MultipartFile image) {
         try {
+        if(name.isEmpty()) return  ResponseEntity.badRequest().body("Invalid Project Name");
         Project newPrj = new Project(name,image.getBytes());
         projectRepo.save(newPrj);
         }catch (IOException e){
