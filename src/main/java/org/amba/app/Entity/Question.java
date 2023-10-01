@@ -33,18 +33,18 @@ public class Question {
     @JoinColumn(name = "fk_project_uuid",referencedColumnName = "id")
     private Project project;
 
-    @Column(name = "question_img")
+    @Column(name = "question_img",nullable = false)
     @Lob
     private byte[] question;
 
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
+    @Column(columnDefinition = "jsonb",nullable = false)
     private List<Options> options;
 
 
-    @Column(name = "answer_index")
-    private long answer_id;
+    @Column(name = "answer_index",nullable = false)
+    private long answerID;
 
 
 }
