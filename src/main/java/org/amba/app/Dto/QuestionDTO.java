@@ -1,23 +1,21 @@
 package org.amba.app.Dto;
 
-import jakarta.persistence.*;
-import org.amba.app.Entity.Project;
+
 import org.amba.app.Util.Options;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 import java.util.List;
 import java.util.UUID;
 
-public class QuestionDTO {
-
-    private String projectId;
-
-    private byte[] QuestionImage;
-
-    // JsonNode options
-    private List<Options> options;
-
-    private String answer_id;
-
-}
+public record QuestionDTO(UUID questionID, byte[] question, List<Options> options,long answerID) {
+        }
+/*
+   q1_0.questionid,
+        q1_0.answer_index,
+        q1_0.options,
+        q1_0.fk_project_uuid,
+        q1_0.question_img
+    from
+        question q1_0
+    where
+        q1_0.fk_project_uuid=?
+* */
