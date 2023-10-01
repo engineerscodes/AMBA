@@ -1,9 +1,7 @@
 package org.amba.app.Controllers;
 
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.amba.app.Dto.QuestionDTO;
 import org.amba.app.Entity.Project;
 import org.amba.app.Entity.Question;
 import org.amba.app.Entity.Type;
@@ -11,7 +9,6 @@ import org.amba.app.Repo.ProjectRepo;
 import org.amba.app.Repo.TypeRepo;
 import org.amba.app.Service.QuestionService;
 import org.amba.app.Util.Options;
-import org.antlr.v4.runtime.misc.NotNull;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -43,14 +40,15 @@ public class QuestionController {
 
 
     @GetMapping("/{id}/all")
-    private ResponseEntity<Question> getAllQuestion(@PathVariable("id") String projectId){
+    private ResponseEntity<List<QuestionDTO>> getAllQuestion(@PathVariable("id") String projectId){
 
         Project p = questionService.checkValidProject(projectId);
         if(p == null) return  ResponseEntity.badRequest().body(null);
         Type projectType = p.getType();
         log.info("Project : {} ",projectType);
+        List<QuestionDTO> questionList = questionService.getAllQuestion(p);
 
-        return ResponseEntity.ok().body(null);
+        return ResponseEntity.ok().body(questionList);
     }
 
     @PostMapping(value = "/new", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})

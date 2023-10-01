@@ -1,14 +1,16 @@
 package org.amba.app.Service;
 
 
+import org.amba.app.Dto.QuestionDTO;
 import org.amba.app.Entity.Project;
 import org.amba.app.Entity.Question;
 import org.amba.app.Repo.ProjectRepo;
 import org.amba.app.Repo.QuestionRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -24,7 +26,6 @@ public class QuestionService {
 
 
     public Project checkValidProject(String projectID){
-
         Optional<Project> p;
         try {
             p = projectRepo.findById(UUID.fromString(projectID));
@@ -38,6 +39,11 @@ public class QuestionService {
 
     public Question addNewQuestion(Question question){
         return questionRepo.save(question);
+    }
+
+    @Transactional
+    public List<QuestionDTO> getAllQuestion(Project p){
+       return questionRepo.findByProject(p);
     }
 
 
