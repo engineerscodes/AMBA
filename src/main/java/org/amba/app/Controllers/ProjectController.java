@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,13 +37,17 @@ public class ProjectController {
     }
 
     @GetMapping("/{id}")
-    private ResponseEntity<String> findProject(@PathVariable("id") String projectId){
+    private ResponseEntity<HashMap<String,String>> findProject(@PathVariable("id") String projectId){
+        HashMap<String,String> message = new HashMap<>();
          try {
              Optional<Project> p = projectRepo.findById(UUID.fromString(projectId));
-             if (p.isEmpty()) return ResponseEntity.badRequest().body("Invalid Project Id");
-             return ResponseEntity.ok("valid project Id");
+
+             if (p.isEmpty()) { message.put("message","Invalid Project Id");return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(message);}
+             message.put("message","valid project Id");
+             return ResponseEntity.ok(message);
          }catch (Exception e){
-             return ResponseEntity.badRequest().body("Invalid Project Id : UUID string too large");
+             message.put("message","Invalid Project Id : UUID string too large");
+             return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(message);
          }
     }
 
