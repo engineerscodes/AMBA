@@ -7,6 +7,7 @@ import org.amba.app.Entity.Question;
 import org.amba.app.Repo.ProjectRepo;
 import org.amba.app.Repo.QuestionRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,8 +43,8 @@ public class QuestionService {
     }
 
     @Transactional
-    public List<QuestionDTO> getAllQuestion(Project p){
-       return questionRepo.findByProject(p);
+    public List<QuestionDTO> getAllQuestion(Project p, Pageable pageable){
+       return questionRepo.findRandomByProject(p,pageable);
     }
 
 

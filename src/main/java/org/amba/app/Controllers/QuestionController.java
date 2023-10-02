@@ -11,6 +11,8 @@ import org.amba.app.Service.QuestionService;
 import org.amba.app.Util.Options;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,13 +42,16 @@ public class QuestionController {
 
 
     @GetMapping("/{id}/all")
-    private ResponseEntity<List<QuestionDTO>> getAllQuestion(@PathVariable("id") String projectId){
+    private ResponseEntity<List<QuestionDTO>> getAllQuestion(@PathVariable("id") String projectId,
+                                                             @RequestParam(defaultValue = "0") int page,
+                                                             @RequestParam(defaultValue = "10") int size){
 
         Project p = questionService.checkValidProject(projectId);
         if(p == null) return  ResponseEntity.badRequest().body(null);
         Type projectType = p.getType();
         log.info("Project : {} ",projectType);
-        List<QuestionDTO> questionList = questionService.getAllQuestion(p);
+        Pageable pageable = PageRequest.of(page, size);
+        List<QuestionDTO> questionList = questionService.getAllQuestion(p,pageable);
 
         return ResponseEntity.ok().body(questionList);
     }

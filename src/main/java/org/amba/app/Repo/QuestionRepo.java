@@ -4,6 +4,7 @@ package org.amba.app.Repo;
 import org.amba.app.Dto.QuestionDTO;
 import org.amba.app.Entity.Project;
 import org.amba.app.Entity.Question;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,4 +19,7 @@ public interface QuestionRepo  extends  JpaRepository<Question, UUID> {
     List<QuestionDTO> findProjectedByProject(@Param("project") Project p);
 
     List<QuestionDTO> findByProject(Project p);
+
+    @Query(value = "select  new org.amba.app.Dto.QuestionDTO(q.questionID , q.question , q.options , q.answerID) from Question q where project = :project ORDER BY RANDOM() ")
+    List<QuestionDTO> findRandomByProject(@Param("project") Project p,Pageable pageable);
 }
