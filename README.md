@@ -7,4 +7,4 @@ Fix for :  UNSUPPORTEDMEDIATYPEEXCEPTION: CONTENT TYPE 'APPLICATION/OCTET-STREAM
 </p>
 
 ## Learning 
-JPA ISSUE : https://github.com/spring-projects/spring-data-jpa/issues/3181
+
