@@ -59,7 +59,7 @@ public class QuestionController {
     @PostMapping(value = "/new", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     private ResponseEntity<Object> addQuestion(@RequestPart("projectId")  String prjID, @RequestPart("QuestionImage") MultipartFile questionImage,
                                       @RequestPart("answer_id") String answer_index,
-                                      @RequestPart(name = "options") List<Options> options) throws IOException {
+                                      @RequestPart(name = "options") List<Options> options , @RequestPart(value = "question_text",required = false) String question_text) throws IOException {
         long answer_id;
         Project p = questionService.checkValidProject(prjID);
         if(p == null) return null;
@@ -70,7 +70,8 @@ public class QuestionController {
         System.out.println(options.size()+" -----"+answer_id);
         if(answer_id>=options.size())
             return ResponseEntity.badRequest().body("Answer Index is greater than no of options");
-        Question question =  new Question(UUID.randomUUID(),p,questionImage.getBytes(),options,answer_id);
+       // Question question =  new Question(UUID.randomUUID(),p,questionImage.getBytes(),options,answer_id);
+        Question question = Question.builder().project(p).questionText(question_text).question(questionImage.getBytes()).options(options).answerID(answer_id).build();
         return ResponseEntity.ok(questionService.addNewQuestion(question));
     }
 

@@ -44,6 +44,9 @@ public class QuestionService {
 
     @Transactional
     public List<QuestionDTO> getAllQuestion(Project p, Pageable pageable){
+
+        // GET THE LIST OF UUID WITH ARE ANSWERED BY USER
+
        return questionRepo.findRandomByProject(p,pageable);
     }
 
