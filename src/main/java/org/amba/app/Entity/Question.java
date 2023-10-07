@@ -2,6 +2,7 @@ package org.amba.app.Entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.amba.app.Util.Options;
@@ -11,6 +12,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.type.SqlTypes;
 
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,12 +21,15 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 public class Question {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID questionID;
 
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private BigInteger questionNumber;
 
     /**
      *  Many question mapped to one Project ID
@@ -37,6 +42,8 @@ public class Question {
     @Lob
     private byte[] question;
 
+    @Column(name = "question_text")
+    private String questionText;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb",nullable = false)
