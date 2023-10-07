@@ -3,6 +3,7 @@ package org.amba.app.Entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.amba.app.Util.Role;
@@ -23,6 +24,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 @Table(name = "users")
 public class User  implements UserDetails {
 
@@ -36,7 +38,7 @@ public class User  implements UserDetails {
     @Column(unique = true, nullable = false)
     private String email;
 
-
+    @Column(name = "user_name",nullable = false)
     private String name;
 
 
