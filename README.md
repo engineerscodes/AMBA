@@ -6,5 +6,8 @@ Fix for :  UNSUPPORTEDMEDIATYPEEXCEPTION: CONTENT TYPE 'APPLICATION/OCTET-STREAM
 
 </p>
 
-## Learning 
+## Learning  
+1 ) https://www.toptal.com/spring/spring-security-tutorial
+2 ) https://github.com/jwtk/jjwt#jwt-create
+3 ) https://github.com/jwtk/jjwt#quickstart
 
