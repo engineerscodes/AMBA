@@ -18,3 +18,18 @@ Fix for :  UNSUPPORTEDMEDIATYPEEXCEPTION: CONTENT TYPE 'APPLICATION/OCTET-STREAM
   // JUST  @GeneratedValue(strategy = GenerationType.IDENTITY) doesn't work
 ```
 
+# SETUP 
+1) Install PostgreSQL Locally
+2) Configure Username and Password in properties file (spring) and also ENV VARIABLE DB_PASSWORD ;PRIVATE_KEY
+3) Disable Auth because Login and Logout is pending in Frontend 
+```java 
+  // to disable replace auth.requestMatchers("/auth/**") to 
+  auth.requestMatchers("**")
+```
+3) Create Type (eg : MCQ) in USING admin http://localhost:4200/admin
+4) Create Project using admin page 
+5) Add question using http://localhost:4200/admin/questions
+
+
+# Pending IMP
+1) Docker 
