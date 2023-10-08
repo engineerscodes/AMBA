@@ -44,6 +44,7 @@ public class ProjectController {
 
              if (p.isEmpty()) { message.put("message","Invalid Project Id");return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(message);}
              message.put("message","valid project Id");
+             message.put("projectName",p.get().getProjectName());
              return ResponseEntity.ok(message);
          }catch (Exception e){
              message.put("message","Invalid Project Id : UUID string too large");
