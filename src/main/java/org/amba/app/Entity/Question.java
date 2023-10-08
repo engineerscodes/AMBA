@@ -29,6 +29,7 @@ public class Question {
     private UUID questionID;
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "question_number", unique = true, nullable = false, insertable = false, updatable = false)
     private BigInteger questionNumber;
 
     /**
