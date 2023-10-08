@@ -3,10 +3,12 @@ package org.amba.app.Dto;
 
 import org.amba.app.Util.Options;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.UUID;
 
-public record QuestionDTO(UUID questionID, byte[] question, List<Options> options,long answerID) {
+public record QuestionDTO(UUID questionID, byte[] question, List<Options> options,
+                          long answerID, BigInteger questionNumber,String questionText) {
         }
 /*
    q1_0.questionid,
