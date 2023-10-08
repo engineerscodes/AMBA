@@ -6,8 +6,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.amba.app.Dto.ProjectDto;
 import org.amba.app.Dto.ProjectNoImageDto;
 import org.amba.app.Entity.Project;
+import org.amba.app.Entity.Type;
 import org.amba.app.Mapper.ProjectMapper;
 import org.amba.app.Repo.ProjectRepo;
+import org.amba.app.Repo.TypeRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,9 @@ public class ProjectController {
 
     @Autowired
     ProjectRepo projectRepo;
+
+    @Autowired
+    TypeRepo typeRepo;
 
     @Autowired
     ProjectMapper projectMapper;
@@ -64,13 +69,18 @@ public class ProjectController {
      * Endpoint to add new Projects - only admin allowed
      */
     @PostMapping("/new")
-    private ResponseEntity<String> newProject(@RequestPart("projectName") String name, @RequestPart("image") MultipartFile image) {
+    private ResponseEntity<String> newProject(@RequestPart("projectName") String name, @RequestPart("image") MultipartFile image,
+    @RequestPart("ProjectType") String projectType) {
         try {
         if(name.isEmpty()) return  ResponseEntity.badRequest().body("Invalid Project Name");
-        Project newPrj = new Project(name,image.getBytes());
+        Optional<Type> type = typeRepo.findById(UUID.fromString(projectType));
+        if(type.isEmpty()) return ResponseEntity.badRequest().body("Project Type not found");
+        Project newPrj = Project.builder().projectName(name).imageData(image.getBytes()).type(type.get()).build(); //new Project(name,image.getBytes(),type.get());
         projectRepo.save(newPrj);
-        }catch (IOException e){
-            ResponseEntity.badRequest().body("Try again,Image upload failed !!");
+        }catch(IllegalArgumentException | IOException ignored){
+           return ResponseEntity.badRequest().body("Try again,Image upload failed !! or check UUID Of the ProjectType");
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body("Saving Project failed due to bad payload eg check Project Name");
         }
         return ResponseEntity.ok(name);
     }
