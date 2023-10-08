@@ -2,10 +2,7 @@ package org.amba.app.Entity;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import org.springframework.web.bind.annotation.RequestPart;
 
 import java.util.UUID;
@@ -15,6 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @NoArgsConstructor
+@Builder
 public class Project {
 
     @Id
@@ -30,12 +28,8 @@ public class Project {
     private byte[] imageData;
 
     @ManyToOne
-    @JoinColumn(name = "fk_type",referencedColumnName = "id")
+    @JoinColumn(name = "fk_type",referencedColumnName = "id",nullable = false)
     private Type type;
 
-    public Project(String projectName,byte[] imageData){
-        this.projectName = projectName;
-        this.imageData = imageData;
-    }
 
 }
