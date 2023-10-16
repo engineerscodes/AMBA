@@ -23,7 +23,12 @@ public class AuthenticationController {
 
     @PostMapping("/signUp")
     private ResponseEntity<AuthenticationResponseDTO> signUp(@RequestBody NewUserDto newUserDto){
-       return ResponseEntity.ok(authenticationService.signUp(newUserDto));
+        try {
+            return ResponseEntity.ok(authenticationService.signUp(newUserDto));
+        }catch (Exception e)
+        {
+            return ResponseEntity.badRequest().body(AuthenticationResponseDTO.builder().message(e.getMessage()).build());
+        }
     }
 
     @PostMapping("/login")
