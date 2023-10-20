@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -81,22 +82,21 @@ public class AdminController {
         }
     }
 
-    @PutMapping(value = "/edit/question", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    private ResponseEntity<QuestionDTO> changeQuestion(@RequestPart("projectId")  String prjID, @RequestPart("QuestionImage") MultipartFile questionImage,
-                                                       @RequestPart("answer_id") String answer_index,
-                                                       @RequestPart(name = "options") List<Options> options , @RequestPart(value = "question_text",required = false) String question_text){
+    @PutMapping(value = "/edit/question")
+    private ResponseEntity<QuestionDTO> changeQuestion(){
         // check if question exists
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         try{
             if(authentication.isAuthenticated()){
                 User user = (User) authentication.getPrincipal();
-                assert user.getRole() != null && user.getRole().equals(Role.ADMIN);
+                Assert.isTrue(user.getRole() != null && user.getRole().equals(Role.ADMIN),"Only Admin allowed ");
+                System.out.println(user.getRole());
             }
-        }catch (AssertionError e){
+        }catch (IllegalArgumentException e){
             return ResponseEntity.badRequest().body(null);
         }
 
-        return ResponseEntity.badRequest().body(null);
+        return ResponseEntity.ok().body(null);
     }
 
     @GetMapping("/user/{uuid}/answer")
