@@ -99,8 +99,13 @@ public class AdminController {
         return ResponseEntity.ok().body(null);
     }
 
-    @GetMapping("/user/{uuid}/answer")
+    @GetMapping("/user/{uuid}/question/answer")
     private ResponseEntity<Object> getAnswerByUser(){
+        return null;
+    }
+
+    @PutMapping("/user/{uuid}/question/answer/remove")
+    private ResponseEntity<Object> removeAnswerOfUser(List<String> questionUuid){
         return null;
     }
 
