@@ -4,13 +4,17 @@ package org.amba.app.Service;
 import org.amba.app.Dto.QuestionDTO;
 import org.amba.app.Entity.Project;
 import org.amba.app.Entity.Question;
+import org.amba.app.Entity.User;
 import org.amba.app.Repo.ProjectRepo;
 import org.amba.app.Repo.QuestionRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -44,10 +48,15 @@ public class QuestionService {
 
     @Transactional
     public List<QuestionDTO> getAllQuestion(Project p, Pageable pageable){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        List<UUID> list = user.getQuestionsCompleted()==null? new ArrayList<UUID>():user.getQuestionsCompleted();
 
-        // GET THE LIST OF UUID WITH ARE ANSWERED BY USER
+       return questionRepo.findRandomByProject(p,pageable,list);
+    }
 
-       return questionRepo.findRandomByProject(p,pageable);
+    public Optional<Question> findQuestionByUuid(UUID questionID){
+        return questionRepo.findById(questionID);
     }
 
 
