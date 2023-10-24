@@ -20,6 +20,7 @@ public interface QuestionRepo  extends  JpaRepository<Question, UUID> {
 
     List<QuestionDTO> findByProject(Project p);
 
-    @Query(value = "select  new org.amba.app.Dto.QuestionDTO(q.questionID , q.question , q.options , q.answerID, q.questionNumber , q.questionText) from Question q where project = :project ORDER BY RANDOM() ")
-    List<QuestionDTO> findRandomByProject(@Param("project") Project p,Pageable pageable);
+    @Query(value = "select  new org.amba.app.Dto.QuestionDTO(q.questionID , q.question , q.options , q.answerID, q.questionNumber , q.questionText) " +
+            "from Question q where project = :project and q.questionID not in :questionIDs ORDER BY RANDOM() ")
+    List<QuestionDTO> findRandomByProject(@Param("project") Project p,Pageable pageable,@Param("questionIDs") List<UUID> questionUuid);
 }
