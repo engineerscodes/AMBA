@@ -6,6 +6,19 @@ Fix for :  UNSUPPORTEDMEDIATYPEEXCEPTION: CONTENT TYPE 'APPLICATION/OCTET-STREAM
 
 </p>
 
+```roomsql
+create table question (
+        questionid uuid not null,
+        answer_index bigint not null,
+        options jsonb not null,
+        question_img oid not null,
+        question_number SERIAL not null,
+        question_text varchar(255),
+        fk_project_uuid uuid,
+        primary key (questionid)
+    )
+```
+
 ## Learning  
 1 ) https://www.toptal.com/spring/spring-security-tutorial
 2 ) https://github.com/jwtk/jjwt#jwt-create
