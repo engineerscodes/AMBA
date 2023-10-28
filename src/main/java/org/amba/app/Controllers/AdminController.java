@@ -2,6 +2,7 @@ package org.amba.app.Controllers;
 
 
 import org.amba.app.Dto.QuestionDTO;
+import org.amba.app.Dto.ReportDTO;
 import org.amba.app.Dto.UserDTO;
 import org.amba.app.Entity.User;
 import org.amba.app.Repo.UserRepo;
@@ -104,8 +105,12 @@ public class AdminController {
         return null;
     }
 
+   // @GetMapping("/report")
+   // private ResponseEntity<List<ReportDTO>>
+
+
     @PutMapping("/user/{uuid}/question/answer/remove")
-    private ResponseEntity<Object> removeAnswerOfUser(List<String> questionUuid){
+    private ResponseEntity<Object> removeAnswerOfUser(@RequestParam("ProjectUUID") String uuid){
         return null;
     }
 
