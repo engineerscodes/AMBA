@@ -4,7 +4,9 @@ package org.amba.app.Controllers;
 import org.amba.app.Dto.QuestionDTO;
 import org.amba.app.Dto.ReportDTO;
 import org.amba.app.Dto.UserDTO;
+import org.amba.app.Entity.Report;
 import org.amba.app.Entity.User;
+import org.amba.app.Repo.ReportAdminRepo;
 import org.amba.app.Repo.UserRepo;
 import org.amba.app.Security.JwtService;
 import org.amba.app.Service.AuthenticationService;
@@ -38,6 +40,9 @@ public class AdminController {
 
     @Autowired
     JwtService jwtService;
+
+    @Autowired
+    ReportAdminRepo reportAdminRepo;
 
     @PostMapping("/add")
     private ResponseEntity<String> makeUserAdmin(@RequestBody Map<String, String> userMap){
@@ -104,6 +109,12 @@ public class AdminController {
     private ResponseEntity<Object> getAnswerByUser(){
         return null;
     }
+
+    @GetMapping("report")
+    private ResponseEntity<List<Report>> getReport(){
+      return ResponseEntity.ok(reportAdminRepo.findAll());
+    }
+
 
    // @GetMapping("/report")
    // private ResponseEntity<List<ReportDTO>>
