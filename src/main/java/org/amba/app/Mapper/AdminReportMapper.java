@@ -23,14 +23,12 @@ public interface AdminReportMapper {
     @Mapping(source = "question.type",target ="type")
     @Mapping(source = "user.role",target ="role")
     @Mapping(source = "user.email",target = "email")
-    @Mapping(source = "user.questionsCompleted",target = "questionCompleted")
     @Mapping(source = "dateTime",target = "reportDate")
     ReportDTO from(QuestionCount question, UserCronDTOProjection user, List<BigInteger> questionNumber, LocalDateTime dateTime,long totalQuestions);
 
 
     @Mapping(source = "reportDTO.reportDate",target = "reportDateTime")
     @Mapping(source = "reportDTO.project",target = "Project")
-    @Mapping(source = "reportDTO.questionCompleted",target = "questionsCompleted")
     Report fromDTO(ReportDTO reportDTO);
 
 }
