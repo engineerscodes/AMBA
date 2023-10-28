@@ -1,9 +1,6 @@
 package org.amba.app.Dto;
 
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -28,9 +25,6 @@ public class ReportDTO {
 
     @NotNull
     String type;
-
-    @NotNull
-    List<String> questionCompleted;
 
     @NotNull
     List<String>  questionNumber;

@@ -38,7 +38,7 @@ public class Report {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb",nullable = true)
-    List<UUID> questionsCompleted;
+    List<String>  questionNumber;
 
     @Column(nullable = false)
     long score;
