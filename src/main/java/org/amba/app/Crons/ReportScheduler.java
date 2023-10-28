@@ -7,6 +7,7 @@ import org.amba.app.Crons.DTO.ProjectCronDTO;
 import org.amba.app.Crons.DTO.QuestionCount;
 import org.amba.app.Crons.DTO.UserCronDTOProjection;
 import org.amba.app.Dto.ReportDTO;
+import org.amba.app.Entity.Report;
 import org.amba.app.Mapper.AdminReportMapper;
 import org.amba.app.Repo.ProjectRepo;
 import org.amba.app.Repo.QuestionRepo;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,7 +50,8 @@ public class ReportScheduler {
 
 
     //@Scheduled(cron = "0 30 22 * * *") // will run every day at 10:30
-    @Scheduled(fixedRate = 5000)
+    // unlike fixedRate : fixedDelay waits for first cron to complete then starts next - to prevent excel from corruption
+    @Scheduled(fixedDelay=5000)
     @Transactional
     public void generateReport() throws IOException {
         log.info("The report generation started {}",new Date());
@@ -75,6 +78,26 @@ public class ReportScheduler {
             reportAdminRepo.save(adminReportMapper.fromDTO(reportDTO));
             reportService.addRow(document.getWorkbook(),document.getSheet(),document.getCreateHelper(),reportDTO);
             });
+
+            // For Projects where User haven't answered
+            Set<UUID> answeredProjects = questionCountByProjects.stream().map(QuestionCount::getId).collect(Collectors.toSet());
+            projects.parallelStream().forEach(e -> {
+                if(!answeredProjects.contains(e.getId())){
+                    reportAdminRepo.save(Report.builder().Project(e.getProjectName())
+                            .type(e.getType())
+                            .email(user.getEmail()).questionNumber(null)
+                                    .score(0).totalQuestions(0)
+                            .role(user.getRole().toString()).reportDateTime(LocalDateTime.now())
+                            .build());
+                    reportService.addRow(document.getWorkbook(),document.getSheet(),document.getCreateHelper(),ReportDTO.builder().project(e.getProjectName())
+                            .type(e.getType())
+                            .email(user.getEmail()).questionNumber(new ArrayList<>())
+                            .score(0).totalQuestions(0)
+                            .role(user.getRole().toString()).reportDate(LocalDateTime.now())
+                            .build());
+                }
+            });
+
         } );
         reportService.save(document.getWorkbook(),document.getSheet());
         log.info("The report generation completed {}", new Date());

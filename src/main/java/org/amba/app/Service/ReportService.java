@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -66,10 +67,13 @@ public class ReportService {
 
     public void save( XSSFWorkbook workbook, XSSFSheet sheet) throws IOException {
         // Resize all columns to fit the content size
+        String pattern = "MM-dd-yyyy";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+        String date = simpleDateFormat.format(new Date());
         for(int i = 0; i < columns.size(); i++) {
             sheet.autoSizeColumn(i);
         }
-        String name = "StudentReport" + ".xlsx";
+        String name = "src//main//resources//Files//StudentReport"+ date+UUID.randomUUID()+ ".xlsx";
         FileOutputStream fileOut = new FileOutputStream(name);
         workbook.write(fileOut);
         fileOut.close();
