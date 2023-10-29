@@ -116,13 +116,42 @@ public class AdminController {
     }
 
 
-   // @GetMapping("/report")
-   // private ResponseEntity<List<ReportDTO>>
-
-
     @PutMapping("/user/{uuid}/question/answer/remove")
     private ResponseEntity<Object> removeAnswerOfUser(@RequestParam("ProjectUUID") String uuid){
         return null;
+    }
+
+
+    @PostMapping("/ChangeRoles")
+    private ResponseEntity<List<Map<String, String>>> ChangeRoles(@RequestBody List<Map<String, String>> userMapList){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        try {
+            if (authentication.isAuthenticated()) {
+                User ReqUser = (User) authentication.getPrincipal();
+                userMapList.parallelStream().forEach(userMap -> {
+                    if (userMap.get("email").equalsIgnoreCase(ReqUser.getEmail()))
+                        throw new RuntimeException("Can't update your role ");
+                });
+            }
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(List.of(Map.of("Error","Can't Updated yourself your Role")));
+        }
+        userMapList.parallelStream().forEach(userMap-> {
+            String userUuid = userMap.get("userUuid");
+            String email = userMap.get("email");
+            if(userUuid != null && email!=null){
+                Optional<User> userOptional= userRepo.findByUserIdAndEmail(UUID.fromString(userUuid),email);
+                if(userOptional.isPresent()){
+                    User user = userOptional.get();
+                    Role newRole = user.getRole().toString().equalsIgnoreCase("ADMIN")?Role.USER:Role.ADMIN;
+                    user.setRole(newRole);
+                    userRepo.save(user);
+                    userMap.put("newRole",newRole.toString());
+                    log.info("Changed User {} Role to {}",email,newRole);
+                }
+            }
+        });
+        return ResponseEntity.ok(userMapList);
     }
 
 }

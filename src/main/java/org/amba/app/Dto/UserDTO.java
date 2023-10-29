@@ -5,5 +5,5 @@ import jakarta.persistence.Column;
 
 import java.util.UUID;
 
-public record UserDTO(@JsonProperty("userUuid") UUID userId, String email) {
+public record UserDTO(@JsonProperty("userUuid") UUID userId, String email,String name) {
 }
