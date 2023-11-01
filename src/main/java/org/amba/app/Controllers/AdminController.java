@@ -154,4 +154,35 @@ public class AdminController {
         return ResponseEntity.ok(userMapList);
     }
 
+    @PostMapping("/deleteUsers")
+    private ResponseEntity<List<Map<String, String>>> deleteUsers(@RequestBody List<Map<String, String>> userMapList){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        try {
+            if (authentication.isAuthenticated()) {
+                User ReqUser = (User) authentication.getPrincipal();
+                userMapList.parallelStream().forEach(userMap -> {
+                    if (userMap.get("email").equalsIgnoreCase(ReqUser.getEmail()))
+                        throw new RuntimeException("Can't Delete yourself ");
+                });
+            }
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(List.of(Map.of("Error","Can't Updated Delete yourself ")));
+        }
+
+        userMapList.parallelStream().forEach(userMap-> {
+            String userUuid = userMap.get("userUuid");
+            String email = userMap.get("email");
+            if(userUuid != null && email!=null){
+                Optional<User> userOptional= userRepo.findByUserIdAndEmail(UUID.fromString(userUuid),email);
+                if(userOptional.isPresent()){
+                    User user = userOptional.get();
+                    userRepo.delete(user);
+                    userMap.put("deleted","true");
+                    log.info("Deleted User with Email {}",email);
+                }
+            }
+        });
+        return ResponseEntity.ok(userMapList);
+    }
+
 }
