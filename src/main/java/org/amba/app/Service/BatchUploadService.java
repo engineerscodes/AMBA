@@ -1,0 +1,198 @@
+package org.amba.app.Service;
+
+import lombok.extern.slf4j.Slf4j;
+import org.amba.app.Dto.QuestionDTO;
+import org.amba.app.Entity.Project;
+import org.amba.app.Entity.Question;
+import org.amba.app.Repo.ProjectRepo;
+import org.amba.app.Repo.QuestionRepo;
+import org.amba.app.Util.Options;
+import org.apache.poi.xwpf.usermodel.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.repository.query.FluentQuery;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.*;
+
+@Service
+@Slf4j
+public class BatchUploadService {
+
+
+    @Autowired
+    ProjectRepo projectRepo;
+
+    @Autowired
+    QuestionRepo questionRepo;
+
+
+
+
+    final List<String>   reqColumns = List.of("Project Name","Question Image","Question Text","Answer Index","Option","Option Image");
+
+    public void validateExcelSheet(MultipartFile file) throws IOException {
+        boolean type = Objects.requireNonNull(file.getContentType())
+                .equalsIgnoreCase("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+       // Assert.isTrue(type, "Only MS EXCEL ALLOWED ,Uploaded file type "+file.getContentType() +" is Not Allowed");
+
+        String fileName  = file.getOriginalFilename();
+        Assert.isTrue(fileName!=null,"File Name can't be Null");
+
+        XWPFDocument doc = new XWPFDocument(file.getInputStream());
+        XWPFTable tables = doc.getTables().get(0);
+        List<XWPFTableRow> row = tables.getRows();
+
+        LinkedHashSet<String> tableColumns = getColumnName(row.get(0));
+        List<String> IndexedCol = tableColumns.stream().toList();
+        log.info("Found Column with Names {} in Document {}",tableColumns,fileName);
+        checkColumnNames(tableColumns);
+
+        for (int rowIndex=0;rowIndex<row.size();rowIndex++) {
+            if(rowIndex!=0) {
+                XWPFTableRow   xwpfTableRow = row.get(rowIndex);
+                Question newQuestion = new Question();
+                HashMap<Integer,byte[]> optionsImg = new HashMap<>();
+                HashMap<Integer,String> options = new HashMap<>();
+                List<XWPFTableCell> cell = xwpfTableRow.getTableCells();
+                for(int colIndex = 0 ; colIndex<cell.size();colIndex++) {
+                    XWPFTableCell xwpfTableCell = cell.get(colIndex);
+                    if(xwpfTableCell != null)
+                        if(IndexedCol.get(colIndex).toLowerCase().contains("image")){
+                            for (XWPFParagraph p : xwpfTableCell.getParagraphs()) {
+                                for (XWPFRun run : p.getRuns()) {
+                                    if(!run.getEmbeddedPictures().isEmpty()) {
+                                        XWPFPicture pic = run.getEmbeddedPictures().get(0);
+                                        byte[] picture = pic.getPictureData().getData();
+                                        setValuesImg(newQuestion,IndexedCol.get(colIndex).toLowerCase(),picture,optionsImg);
+                                    }
+                                }
+                            }
+                        }
+                        else{
+                            setReqQuestionValuesNoImg(newQuestion,IndexedCol.get(colIndex),xwpfTableCell.getText(),options);
+                        }
+                }
+
+                // validation for options
+                answerValidationAndSave(newQuestion,options,optionsImg);
+            }
+        }
+
+        //Close the doc
+        doc.close();
+    }
+
+
+    public void setValuesImg(Question question,String currentCol,byte imgData[],HashMap<Integer,byte[]> optionsImg){
+        Assert.isTrue(imgData.length>0,"No Image Found for `"+currentCol+"`");
+        if(currentCol.equalsIgnoreCase("Question Image")){
+            question.setQuestion(imgData);
+        }
+        else if(currentCol.startsWith("Option Image".toLowerCase())){
+            int optionIndex = Integer.parseInt(currentCol.split("Option Image ".toLowerCase())[1]);
+            optionsImg.put(optionIndex,imgData);
+        }
+    }
+
+    public void  answerValidationAndSave(Question question,HashMap<Integer,String> options,HashMap<Integer,byte[]> optionsImg){
+
+        long answerIndex = question.getAnswerID();
+        List<Options> questionOptions = new ArrayList<>();
+        Assert.isTrue(options.size()==optionsImg.size(),
+                "No of Options & No of Options Image doesn't match for question `"+question.getQuestionText()+"`");
+        Assert.isTrue(answerIndex>0,"Answer index is missing");
+        Assert.isTrue(answerIndex<=options.size(),
+                "Answer index for Question `"+question.getQuestionText()+"` is Greater than No of Options ");
+        for(int i=1;i<=options.size();i++){
+            System.out.println(options.get(i)+" --- "+ Arrays.toString(optionsImg.get(i)));
+            if( options.get(i)!=null && optionsImg.get(i)==null){
+                throw new RuntimeException("Option " + i + " is Empty and Option Image " + i + " has data for Question " + question.getQuestionText());
+            }
+            if( options.get(i)==null && optionsImg.get(i)!=null)
+                throw new RuntimeException("Option "+i+ " has data but Option Image "+i +" is Empty for Question "+question.getQuestionNumber());
+            questionOptions.add(new Options(options.get(i),optionsImg.get(i)));
+        }
+        question.setAnswerID(answerIndex-1);
+        question.setOptions(questionOptions);
+        questionRepo.saveAndFlush(question);
+        log.info("Saved Question with Number {}",question.getQuestionNumber());
+    }
+
+
+    public void setReqQuestionValuesNoImg(Question question,String currentCol,String value,HashMap<Integer,String> options){
+        value = value.trim();
+        if(!currentCol.startsWith("option"))
+         Assert.isTrue(!value.isEmpty(),currentCol+" can't be Empty ");
+        if(currentCol.equalsIgnoreCase("Project Name")){
+            ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreCase("projectName");
+            Example<Project> projectExample = Example.of(Project.builder().projectName(value).build(),matcher);
+            Optional<Project> p = projectRepo.findBy(projectExample, FluentQuery.FetchableFluentQuery::first);
+            Assert.isTrue(p.isPresent(),"No Project With Name `"+value+"` Found ");
+            Project project = p.get();
+            question.setProject(project);
+        }
+        else if(currentCol.equalsIgnoreCase("Question Text")){
+            question.setQuestionText(value);
+        }
+        else if(currentCol.equalsIgnoreCase("Answer Index")){
+            long answerIndex = Long.parseLong(value);
+            // AnswerIndex Will be validated before save ...........
+            question.setAnswerID(answerIndex);
+        }else if (currentCol.startsWith("Option".toLowerCase()) && !currentCol.startsWith("Option Image".toLowerCase())){
+            int optionIndex = Integer.parseInt(currentCol.split("option ")[1]);
+            if(!value.isEmpty()) options.put(optionIndex,value);
+        }
+    }
+
+
+
+    public void checkColumnNames(HashSet<String> tableColumns){
+        for (String col : reqColumns){
+            if(!col.startsWith("Option"))
+              Assert.isTrue(tableColumns.contains(col.toLowerCase()),
+                      "Required  Column `"+ col+"` Missing from Document");
+        }
+        validateOptions(tableColumns);
+    }
+
+    public void validateOptions(HashSet<String> tableColumns){
+        long optionCol = tableColumns.stream().filter(col -> col.startsWith("Option".toLowerCase()) && !col.startsWith("Option Image".toLowerCase())).count();
+        long optionImgCol = tableColumns.stream().filter(col -> col.startsWith("Option Image".toLowerCase())).count();
+        Assert.isTrue(optionCol!=0,"No Column  Found that Starts with Name `Option`");
+        Assert.isTrue(optionImgCol!=0,"No Column Found that Starts with `Option Image`");
+        Assert.isTrue(optionImgCol==optionCol,"No of Option and Option Image are not Matching found [Options = "+optionCol +" ], [Option Image = "+optionImgCol +" ]");
+        for(long i=1;i<=optionCol;i++){
+            Assert.isTrue(tableColumns.contains("Option ".toLowerCase()+i),"No Option column found with Name `Option "+i+"`");
+            Assert.isTrue(tableColumns.contains("Option Image ".toLowerCase()+i),"No Option column found with Name `Option Image "+i+"`");
+        }
+    }
+
+    public LinkedHashSet<String> getColumnName(XWPFTableRow zerothRow){ //row = zero
+        List<XWPFTableCell> cell = zerothRow.getTableCells();
+        LinkedHashSet<String> columnNames = new  LinkedHashSet<>();
+        for (XWPFTableCell currentColCell:cell) {
+            if(currentColCell!=null) {
+                Assert.isTrue(!columnNames.contains(currentColCell.getText()), "Multiple Columns with Same Name found : " + currentColCell.getText());
+                columnNames.add(currentColCell.getText().toLowerCase().trim());
+            }
+        }
+        return columnNames;
+    }
+
+
+}
+
+
+/*
+for (XWPFPicture pic : run.getEmbeddedPictures()) {
+    byte[] pictureData = pic.getPictureData().getData();
+    System.out.println("picture : " + pictureData);
+ }
+ */
+
+//https://stackoverflow.com/questions/44016335/read-the-tables-data-from-the-docx-files
