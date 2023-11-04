@@ -24,6 +24,7 @@ create table question (
 2 ) https://github.com/jwtk/jjwt#jwt-create
 3 ) https://github.com/jwtk/jjwt#quickstart
 4 ) Auto incremented number generation for a Non-Primary key column
+5 ) Query by Example : https://github.com/spring-projects/spring-data-commons/blob/main/src/main/asciidoc/query-by-example.adoc 
 
 ```java
   @GeneratedValue(strategy = GenerationType.IDENTITY)
