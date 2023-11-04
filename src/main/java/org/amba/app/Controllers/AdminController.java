@@ -16,6 +16,9 @@ import org.amba.app.Util.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -79,13 +82,18 @@ public class AdminController {
 
 
     @GetMapping("/getUserByType") //pagination needed
-    private ResponseEntity<List<UserDTO>> getUsers(@RequestParam String role){
+    private ResponseEntity<Object> getUsers(@RequestParam String role,
+                                                   @RequestParam(defaultValue = "0") int page,
+                                                   @RequestParam(defaultValue = "50") int size){
         try {
             Role userRole = Role.valueOf(role);
-            return ResponseEntity.ok(userRepo.findByRole(userRole));
+            Pageable pageable = PageRequest.of(page, size);
+            List<UserDTO> users =userRepo.findByRole(userRole,pageable);
+            Assert.isTrue(!users.isEmpty(),"No more User found with Role "+role);
+            return ResponseEntity.ok(users);
         }catch (Exception e){
             log.error("No role found of type : {}",role);
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body(Map.of("error",e.getMessage()));
         }
     }
 
@@ -112,8 +120,10 @@ public class AdminController {
     }
 
     @GetMapping("report")  // pagination needed
-    private ResponseEntity<List<Report>> getReport(){
-      return ResponseEntity.ok(reportAdminRepo.findAll());
+    private ResponseEntity<Page<Report>> getReport(@RequestParam(defaultValue = "0") int page,
+                                                   @RequestParam(defaultValue = "50") int size){
+      Pageable pageable = PageRequest.of(page, size);
+      return ResponseEntity.ok(reportAdminRepo.findAll(pageable));
     }
 
 
