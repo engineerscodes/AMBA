@@ -10,6 +10,7 @@ import org.amba.app.Repo.ReportAdminRepo;
 import org.amba.app.Repo.UserRepo;
 import org.amba.app.Security.JwtService;
 import org.amba.app.Service.AuthenticationService;
+import org.amba.app.Service.BatchUploadService;
 import org.amba.app.Util.Options;
 import org.amba.app.Util.Role;
 import org.slf4j.Logger;
@@ -24,10 +25,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/admin")
@@ -43,6 +41,9 @@ public class AdminController {
 
     @Autowired
     ReportAdminRepo reportAdminRepo;
+
+    @Autowired
+    BatchUploadService batchUploadService;
 
     @PostMapping("/add")
     private ResponseEntity<String> makeUserAdmin(@RequestBody Map<String, String> userMap){
@@ -77,7 +78,7 @@ public class AdminController {
     }
 
 
-    @GetMapping("/getUserByType")
+    @GetMapping("/getUserByType") //pagination needed
     private ResponseEntity<List<UserDTO>> getUsers(@RequestParam String role){
         try {
             Role userRole = Role.valueOf(role);
@@ -110,7 +111,7 @@ public class AdminController {
         return null;
     }
 
-    @GetMapping("report")
+    @GetMapping("report")  // pagination needed
     private ResponseEntity<List<Report>> getReport(){
       return ResponseEntity.ok(reportAdminRepo.findAll());
     }
@@ -185,4 +186,14 @@ public class AdminController {
         return ResponseEntity.ok(userMapList);
     }
 
+    @PostMapping(value = "/uploadQuestions",consumes =MediaType.MULTIPART_FORM_DATA_VALUE)
+    private ResponseEntity<Object> batchUpload(MultipartFile file){
+        try {
+           // Need to be Async operation (IMP)
+           batchUploadService.validateExcelSheet(file);
+             return ResponseEntity.ok().body(null);
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
