@@ -20,10 +20,11 @@ create table question (
 ```
 
 ## Learning  
-1 ) https://www.toptal.com/spring/spring-security-tutorial
-2 ) https://github.com/jwtk/jjwt#jwt-create
-3 ) https://github.com/jwtk/jjwt#quickstart
-4 ) Auto incremented number generation for a Non-Primary key column
+1 ) https://www.toptal.com/spring/spring-security-tutorial <br>
+2 ) https://github.com/jwtk/jjwt#jwt-create <br>
+3 ) https://github.com/jwtk/jjwt#quickstart <br>
+4 ) Auto incremented number generation for a Non-Primary key column <br>
+5 ) Query by Example : https://github.com/spring-projects/spring-data-commons/blob/main/src/main/asciidoc/query-by-example.adoc  <br>
 
 ```java
   @GeneratedValue(strategy = GenerationType.IDENTITY)
