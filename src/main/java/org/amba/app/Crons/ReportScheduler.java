@@ -22,8 +22,8 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
+import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 
 @Component
@@ -49,57 +49,55 @@ public class ReportScheduler {
     ReportService reportService;
 
 
-    //@Scheduled(cron = "0 30 22 * * *") // will run every day at 10:30
-    // unlike fixedRate : fixedDelay waits for first cron to complete then starts next - to prevent excel from corruption
-    @Scheduled(fixedDelay=5000)
+
+    @Scheduled(cron =  "0 30 22 * * *")// will run every day at 10:30 "0 30 22 * * *" //only one thread to run scheduling tasks
     @Transactional
     public void generateReport() throws IOException {
-        log.info("The report generation started {}",new Date());
-        Doc document = reportService.generateReport();
+        log.info("The report generation started {}", new Date());
 
+        Doc document = reportService.generateReport();
         List<ProjectCronDTO> projects = projectRepo.findAllProjects();
-        log.info("Found {} projects in DB ",projects.size());
+        log.info("Found {} projects in DB ", projects.size());
 
         List<UserCronDTOProjection> users = userRepo.findAllProjection();
-        log.info("Found {} users in DB",users.size());
+        log.info("Found {} users in DB", users.size());
 
         log.info("Removing the old reports ");
         reportAdminRepo.deleteAll();
 
-        users.parallelStream().forEach(user ->{
-            final List<UUID> questionUUID = user.getQuestionsCompleted()==null?new ArrayList<>():user.getQuestionsCompleted();
-            log.info("User {} has completed {} question ",user.getEmail(),questionUUID.size());
-            // get count of answered questions
-            List<QuestionCount> questionCountByProjects = questionRepo.getCountByProjects(questionUUID);
-            questionCountByProjects.forEach(e->{
-            Optional<Long> totalQuestion = questionRepo.noOfQuestionByProject(e.getId());
-            List<BigInteger>  questionNumber = questionRepo.findAllQuestionNumber(questionUUID,e.getId());
-            ReportDTO reportDTO = adminReportMapper.from(e,user,questionNumber, LocalDateTime.now(),totalQuestion.orElse(0L));
-            reportAdminRepo.save(adminReportMapper.fromDTO(reportDTO));
-            reportService.addRow(document.getWorkbook(),document.getSheet(),document.getCreateHelper(),reportDTO);
-            });
+        users.forEach(user ->{
+        final List<UUID> questionUUID = user.getQuestionsCompleted()==null?new ArrayList<>():user.getQuestionsCompleted();
+        log.info("User {} has completed {} question ",user.getEmail(),questionUUID.size());
+        // get count of answered questions
+        List<QuestionCount> questionCountByProjects = questionRepo.getCountByProjects(questionUUID);
+        questionCountByProjects.forEach(e->{
+        Optional<Long> totalQuestion = questionRepo.noOfQuestionByProject(e.getId());
+        List<BigInteger>  questionNumber = questionRepo.findAllQuestionNumber(questionUUID,e.getId());
+        ReportDTO reportDTO = adminReportMapper.from(e,user,questionNumber, LocalDateTime.now(),totalQuestion.orElse(0L));
+        reportAdminRepo.save(adminReportMapper.fromDTO(reportDTO));
+        reportService.addRow(document.getWorkbook(),document.getSheet(),document.getCreateHelper(),reportDTO);
+        });
 
-            // For Projects where User haven't answered
-            Set<UUID> answeredProjects = questionCountByProjects.stream().map(QuestionCount::getId).collect(Collectors.toSet());
-            projects.parallelStream().forEach(e -> {
-                if(!answeredProjects.contains(e.getId())){
-                    reportAdminRepo.save(Report.builder().Project(e.getProjectName())
-                            .type(e.getType())
-                            .email(user.getEmail()).questionNumber(null)
-                                    .score(0).totalQuestions(0)
-                            .role(user.getRole().toString()).reportDateTime(LocalDateTime.now())
-                            .build());
-                    reportService.addRow(document.getWorkbook(),document.getSheet(),document.getCreateHelper(),ReportDTO.builder().project(e.getProjectName())
-                            .type(e.getType())
-                            .email(user.getEmail()).questionNumber(new ArrayList<>())
-                            .score(0).totalQuestions(0)
-                            .role(user.getRole().toString()).reportDate(LocalDateTime.now())
-                            .build());
-                }
+        // For Projects where User haven't answered
+        Set<UUID> answeredProjects = questionCountByProjects.stream().map(QuestionCount::getId).collect(Collectors.toSet());
+            projects.forEach(e -> {
+            if(!answeredProjects.contains(e.getId())){
+                reportAdminRepo.save(Report.builder().Project(e.getProjectName())
+                        .type(e.getType())
+                        .email(user.getEmail()).questionNumber(null)
+                                .score(0).totalQuestions(0)
+                        .role(user.getRole().toString()).reportDateTime(LocalDateTime.now())
+                        .build());
+                reportService.addRow(document.getWorkbook(),document.getSheet(),document.getCreateHelper(),ReportDTO.builder().project(e.getProjectName())
+                        .type(e.getType())
+                        .email(user.getEmail()).questionNumber(new ArrayList<>())
+                        .score(0).totalQuestions(0)
+                        .role(user.getRole().toString()).reportDate(LocalDateTime.now())
+                        .build());
+            }
             });
-
-        } );
-        reportService.save(document.getWorkbook(),document.getSheet());
+        });
+        reportService.save(document.getWorkbook(), document.getSheet());
         log.info("The report generation completed {}", new Date());
     }
 }
