@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
 
@@ -35,56 +36,80 @@ public class BatchUploadService {
 
     final List<String>   reqColumns = List.of("Project Name","Question Image","Question Text","Answer Index","Option","Option Image");
 
-    public void validateExcelSheet(MultipartFile file) throws IOException {
+    public ByteArrayOutputStream validateExcelSheet(MultipartFile file) throws IOException {
         boolean type = Objects.requireNonNull(file.getContentType())
-                .equalsIgnoreCase("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-       // Assert.isTrue(type, "Only MS EXCEL ALLOWED ,Uploaded file type "+file.getContentType() +" is Not Allowed");
-
+                .equalsIgnoreCase("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        Assert.isTrue(type, "Only MS EXCEL ALLOWED ,Uploaded file type "+file.getContentType() +" is Not Allowed");
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
         String fileName  = file.getOriginalFilename();
         Assert.isTrue(fileName!=null,"File Name can't be Null");
 
         XWPFDocument doc = new XWPFDocument(file.getInputStream());
         XWPFTable tables = doc.getTables().get(0);
+        // add new Column
+        tables.addNewCol();
         List<XWPFTableRow> row = tables.getRows();
 
         LinkedHashSet<String> tableColumns = getColumnName(row.get(0));
         List<String> IndexedCol = tableColumns.stream().toList();
-        log.info("Found Column with Names {} in Document {}",tableColumns,fileName);
+        log.info("Found Column with Names {} in Document {}", tableColumns, fileName);
         checkColumnNames(tableColumns);
 
-        for (int rowIndex=0;rowIndex<row.size();rowIndex++) {
-            if(rowIndex!=0) {
-                XWPFTableRow   xwpfTableRow = row.get(rowIndex);
+
+        for (int rowIndex = 0; rowIndex < row.size(); rowIndex++) {
+            if (rowIndex != 0) {
+                XWPFTableRow xwpfTableRow = row.get(rowIndex);
                 Question newQuestion = new Question();
-                HashMap<Integer,byte[]> optionsImg = new HashMap<>();
-                HashMap<Integer,String> options = new HashMap<>();
+                HashMap<Integer, byte[]> optionsImg = new HashMap<>();
+                HashMap<Integer, String> options = new HashMap<>();
                 List<XWPFTableCell> cell = xwpfTableRow.getTableCells();
-                for(int colIndex = 0 ; colIndex<cell.size();colIndex++) {
+                for (int colIndex = 0; colIndex < cell.size(); colIndex++) {
                     XWPFTableCell xwpfTableCell = cell.get(colIndex);
-                    if(xwpfTableCell != null)
-                        if(IndexedCol.get(colIndex).toLowerCase().contains("image")){
+                    if (xwpfTableCell != null)
+                        if (IndexedCol.get(colIndex).toLowerCase().contains("image")) {
                             for (XWPFParagraph p : xwpfTableCell.getParagraphs()) {
                                 for (XWPFRun run : p.getRuns()) {
-                                    if(!run.getEmbeddedPictures().isEmpty()) {
+                                    if (!run.getEmbeddedPictures().isEmpty()) {
                                         XWPFPicture pic = run.getEmbeddedPictures().get(0);
                                         byte[] picture = pic.getPictureData().getData();
-                                        setValuesImg(newQuestion,IndexedCol.get(colIndex).toLowerCase(),picture,optionsImg);
+                                        try {
+                                            setValuesImg(newQuestion, IndexedCol.get(colIndex).toLowerCase(), picture, optionsImg);
+                                        }catch (Exception e){
+                                            cell.get(cell.size()-1).setText(e.getMessage());
+                                            cell.parallelStream().forEach(col -> col.setColor("DB1F48"));
+                                            break;
+                                        }
                                     }
                                 }
                             }
-                        }
-                        else{
-                            setReqQuestionValuesNoImg(newQuestion,IndexedCol.get(colIndex),xwpfTableCell.getText(),options);
+                        } else {
+                            try {
+                                setReqQuestionValuesNoImg(newQuestion, IndexedCol.get(colIndex), xwpfTableCell.getText(), options);
+                            }catch (Exception e){
+                                cell.get(cell.size()-1).setText(e.getMessage());
+                                cell.parallelStream().forEach(col -> col.setColor("DB1F48"));
+                                break;
+                            }
+
                         }
                 }
 
                 // validation for options
-                answerValidationAndSave(newQuestion,options,optionsImg);
+                try {
+                    answerValidationAndSave(newQuestion, options, optionsImg);
+                    cell.parallelStream().forEach(col -> col.setColor("00FF00"));
+                    cell.get(cell.size() - 1).setText("Uploaded ");
+                }catch (Exception e){
+                    cell.get(cell.size()-1).setText(e.getMessage());
+                    cell.parallelStream().forEach(col -> col.setColor("DB1F48"));
+                }
             }
         }
-
+        doc.write(out);
         //Close the doc
         doc.close();
+        out.close();
+        return out;
     }
 
 
@@ -126,7 +151,7 @@ public class BatchUploadService {
 
     public void setReqQuestionValuesNoImg(Question question,String currentCol,String value,HashMap<Integer,String> options){
         value = value.trim();
-        if(!currentCol.startsWith("option"))
+        if(!currentCol.startsWith("option") && !currentCol.equalsIgnoreCase("STATUS"))
          Assert.isTrue(!value.isEmpty(),currentCol+" can't be Empty ");
         if(currentCol.equalsIgnoreCase("Project Name")){
             ExampleMatcher matcher = ExampleMatcher.matching().withIgnoreCase("projectName");
@@ -177,6 +202,11 @@ public class BatchUploadService {
         LinkedHashSet<String> columnNames = new  LinkedHashSet<>();
         for (XWPFTableCell currentColCell:cell) {
             if(currentColCell!=null) {
+                if(currentColCell.getText().isEmpty())
+                {
+                    currentColCell.setColor("00FFFF");
+                    currentColCell.setText("STATUS");
+                }
                 Assert.isTrue(!columnNames.contains(currentColCell.getText()), "Multiple Columns with Same Name found : " + currentColCell.getText());
                 columnNames.add(currentColCell.getText().toLowerCase().trim());
             }
