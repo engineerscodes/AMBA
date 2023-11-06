@@ -45,5 +45,6 @@ create table question (
 5) Add question using http://localhost:4200/admin/questions
 
 
-# Pending IMP
-1) Docker (WIP) 
+# DOCKER IMG
+1) docker-compose -f docker-compose.yaml up --build
+
