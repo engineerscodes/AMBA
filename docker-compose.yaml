@@ -1,0 +1,35 @@
+version: "3.8"
+services:
+  postgres-db:
+    image: postgres
+    container_name: postgres-db
+    restart: always
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - amba-network
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=naveen
+      - POSTGRES_DB=amba
+    ports:
+      - '5432:5432'
+
+  ambabackend:
+    build:
+        context: .
+        dockerfile: Dockerfile
+    ports:
+      - '8080:8080'
+    environment:
+      - DB_URL=jdbc:postgresql://postgres-db:5432/amba
+      - PRIVATE_KEY=766f6f72664c38514c6541633643706c357467726e4c4c765433487862546b4e
+      - DB_PASSWORD=naveen # Password is added here directly because of NGO
+    networks:
+      - amba-network
+    depends_on:
+      - postgres-db
+volumes:
+  db-data:
+networks:
+  amba-network:
