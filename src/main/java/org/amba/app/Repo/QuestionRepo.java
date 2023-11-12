@@ -40,4 +40,8 @@ public interface QuestionRepo  extends  JpaRepository<Question, UUID> {
     @Query(value = "select  new org.amba.app.Dto.QuestionDTO(q.questionID , q.question , q.options , q.answerID, q.questionNumber , q.questionText) " +
             "from Question q where project = :project and q.questionID not in :questionIDs ORDER BY RANDOM() ")
     List<QuestionDTO> findRandomByProject(@Param("project") Project p,Pageable pageable,@Param("questionIDs") List<UUID> questionUuid);
+
+    @Query(value = "select  new org.amba.app.Dto.QuestionDTO(q.questionID , q.question , q.options , q.answerID, q.questionNumber , q.questionText) " +
+            "from Question q where project = :project")
+    List<QuestionDTO> findRandomByProjectFirstTime(@Param("project") Project p,Pageable pageable);
 }
