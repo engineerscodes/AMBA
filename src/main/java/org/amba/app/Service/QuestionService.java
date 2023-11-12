@@ -50,9 +50,11 @@ public class QuestionService {
     public List<QuestionDTO> getAllQuestion(Project p, Pageable pageable){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
-        List<UUID> list = user.getQuestionsCompleted()==null? new ArrayList<UUID>():user.getQuestionsCompleted();
-
-       return questionRepo.findRandomByProject(p,pageable,list);
+        if(user.getQuestionsCompleted()==null){
+            return questionRepo.findRandomByProjectFirstTime(p,pageable);
+        }
+        List<UUID> list = user.getQuestionsCompleted();
+        return questionRepo.findRandomByProject(p,pageable,list);
     }
 
     public Optional<Question> findQuestionByUuid(UUID questionID){
