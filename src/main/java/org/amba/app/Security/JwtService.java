@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.amba.app.Entity.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -42,10 +43,10 @@ public class JwtService {
         return getClaims(jwtToken,Claims::getSubject);
     }
 
-    public String generateToken(UserDetails user){
+    public String generateToken(User user){
         HashMap <String,Object> newClaims = new HashMap<>();
         newClaims.put("roles",user.getAuthorities());
-        newClaims.put("name",user.getUsername());
+        newClaims.put("name",user.getName());
         return generateToken(newClaims,user);
     }
 
