@@ -98,8 +98,9 @@ public class QuestionController {
                                       @RequestPart("answer_id") String answer_index,
                                       @RequestPart(name = "options") List<Options> options , @RequestPart(value = "question_text",required = false) String question_text) throws IOException {
         long answer_id;
+        if(prjID==null || prjID.isEmpty()) return ResponseEntity.badRequest().body(null);
         Project p = questionService.checkValidProject(prjID);
-        if(p == null) return null;
+        if(p == null) return ResponseEntity.badRequest().body(null);
         try {
             answer_id = Long.parseLong(answer_index);
         }
