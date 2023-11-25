@@ -199,8 +199,7 @@ public class AdminController {
     @PostMapping(value = "/uploadQuestions",consumes =MediaType.MULTIPART_FORM_DATA_VALUE,produces = "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
     private ResponseEntity<Object> batchUpload(MultipartFile file){
         try {
-            // Need to be Async operation (IMP)
-             return ResponseEntity.ok().body(batchUploadService.validateExcelSheet(file).toByteArray());
+             return ResponseEntity.ok().body(batchUploadService.validateExcelSheet(file,AdminController.class).toByteArray());
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
