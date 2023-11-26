@@ -36,7 +36,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
        http.csrf(AbstractHttpConfigurer::disable).cors(httpSecurityCorsConfigurer -> {
          httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource);
-    })
+    })         /*Need to add only admin usr to Admin routes - needs testing */
                .authorizeHttpRequests(auth ->
                        auth.requestMatchers("/auth/**").permitAll()
                                .anyRequest().authenticated()
