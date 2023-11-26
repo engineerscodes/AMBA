@@ -1,12 +1,18 @@
 package org.amba.app.Service;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.amba.app.Dto.QuestionDTO;
 import org.amba.app.Entity.Project;
 import org.amba.app.Entity.Question;
+import org.amba.app.Entity.QuestionAudit;
+import org.amba.app.Messaging.RabbitClient;
 import org.amba.app.Repo.ProjectRepo;
+import org.amba.app.Repo.QuestionAuditRepo;
 import org.amba.app.Repo.QuestionRepo;
+import org.amba.app.Util.MquStatus;
 import org.amba.app.Util.Options;
+import org.amba.app.Util.QuestionMessage;
 import org.apache.poi.xwpf.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -18,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -31,12 +38,16 @@ public class BatchUploadService {
     @Autowired
     QuestionRepo questionRepo;
 
+    @Autowired
+    RabbitClient rabbitClient;
 
+    @Autowired
+    QuestionAuditRepo questionAuditRepo;
 
 
     final List<String>   reqColumns = List.of("Project Name","Question Image","Question Text","Answer Index","Option","Option Image");
 
-    public ByteArrayOutputStream validateExcelSheet(MultipartFile file) throws IOException {
+    public ByteArrayOutputStream validateExcelSheet(MultipartFile file,Class<?> clazz) throws IOException {
         boolean type = Objects.requireNonNull(file.getContentType())
                 .equalsIgnoreCase("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
         Assert.isTrue(type, "Only MS EXCEL ALLOWED ,Uploaded file type "+file.getContentType() +" is Not Allowed");
@@ -54,7 +65,22 @@ public class BatchUploadService {
         List<String> IndexedCol = tableColumns.stream().toList();
         log.info("Found Column with Names {} in Document {}", tableColumns, fileName);
         checkColumnNames(tableColumns);
-
+        log.info("Was Called From Class {}", clazz.getSimpleName());
+        if(clazz.getSimpleName().equalsIgnoreCase("AdminController")){
+            QuestionAudit qa = null;
+            try {
+                qa = saveRecord();
+            }catch (Exception e){
+                throw new RuntimeException(e);
+            }
+            Assert.isTrue(qa.getQuestionID()!=null,"Question Upload ID can't be Null");
+            rabbitClient.sendMessage(QuestionMessage.builder().QuestionUploadId(qa.getQuestionID()).
+                    fileData(file.getInputStream().readAllBytes()).time(LocalDateTime.now().toString()).build());
+            doc.write(out);
+            doc.close();
+            out.close();
+            return out;
+        }
 
         for (int rowIndex = 0; rowIndex < row.size(); rowIndex++) {
             if (rowIndex != 0) {
@@ -145,7 +171,7 @@ public class BatchUploadService {
         question.setAnswerID(answerIndex-1);
         question.setOptions(questionOptions);
         questionRepo.saveAndFlush(question);
-        log.info("Saved Question with Number {}",question.getQuestionNumber());
+        log.info("Saved Question with Number {}",question.getQuestionID());
     }
 
 
@@ -214,6 +240,17 @@ public class BatchUploadService {
         return columnNames;
     }
 
+    @Transactional
+    public QuestionAudit saveRecord(){
+        QuestionAudit qa = QuestionAudit.builder().uploadStatus(MquStatus.UPLOADED)
+                .dateTime(LocalDateTime.now()).build();
+        questionAuditRepo.saveAndFlush(qa);
+        Assert.isTrue(qa.getQuestionID()!=null,"Question Upload ID can't be Null");
+        String newFileName = "QuestionUpload_"+qa.getQuestionID()+"_"+".docx";
+        qa.setFilePath(newFileName);
+        questionAuditRepo.saveAndFlush(qa);
+        return qa;
+    }
 
 }
 

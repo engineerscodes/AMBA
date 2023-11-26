@@ -4,8 +4,10 @@ package org.amba.app.Controllers;
 import org.amba.app.Dto.QuestionDTO;
 import org.amba.app.Dto.ReportDTO;
 import org.amba.app.Dto.UserDTO;
+import org.amba.app.Entity.QuestionAudit;
 import org.amba.app.Entity.Report;
 import org.amba.app.Entity.User;
+import org.amba.app.Repo.QuestionAuditRepo;
 import org.amba.app.Repo.ReportAdminRepo;
 import org.amba.app.Repo.UserRepo;
 import org.amba.app.Security.JwtService;
@@ -28,6 +30,10 @@ import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.*;
 
 @RestController
@@ -47,6 +53,9 @@ public class AdminController {
 
     @Autowired
     BatchUploadService batchUploadService;
+
+    @Autowired
+    QuestionAuditRepo questionAuditRepo;
 
     @PostMapping("/add")
     private ResponseEntity<String> makeUserAdmin(@RequestBody Map<String, String> userMap){
@@ -199,10 +208,26 @@ public class AdminController {
     @PostMapping(value = "/uploadQuestions",consumes =MediaType.MULTIPART_FORM_DATA_VALUE,produces = "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
     private ResponseEntity<Object> batchUpload(MultipartFile file){
         try {
-            // Need to be Async operation (IMP)
-             return ResponseEntity.ok().body(batchUploadService.validateExcelSheet(file).toByteArray());
+             return ResponseEntity.ok().body(batchUploadService.validateExcelSheet(file,AdminController.class).toByteArray());
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/QuestionUploaded")
+    private List<QuestionAudit> getUploadedQuestions(){
+        return questionAuditRepo.findAll().stream().filter(e-> e.getDateTime()!=null)
+                .sorted(Comparator.comparing(QuestionAudit::getDateTime)).toList();
+    }
+
+    @GetMapping(value = "downloadFile",produces ="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+    private ResponseEntity<Object> downloadFile(@RequestParam long id) throws IOException {
+        String fileName = "QuestionUpload_"+id+"_"+".docx";
+        File file = new File("src//main//resources//Files//QuestionUpload//"+fileName);
+        try (FileInputStream inputStream = new FileInputStream(file)){ // using try with resource for automatically manages the closing of resources
+            return ResponseEntity.ok(inputStream.readAllBytes());
+        } catch (FileNotFoundException e) {
+            return ResponseEntity.internalServerError().body("Can't Find the File with the above name");
         }
     }
 }
