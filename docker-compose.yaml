@@ -38,6 +38,8 @@ services:
       - PRIVATE_KEY=766f6f72664c38514c6541633643706c357467726e4c4c765433487862546b4e
       - DB_PASSWORD=naveen # Password is added here directly because of NGO
       - Docker_Rabbit=rabbitmq_amba
+      - RABBITMQ_USER=amba
+      - RABBITMQ_PASS=amba_ngo_india
     networks:
       - amba-network
     depends_on:
