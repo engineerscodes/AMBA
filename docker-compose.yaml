@@ -18,6 +18,7 @@ services:
   rabbitmq_amba:
     image: rabbitmq:3-management
     container_name: rabbitmq_amba
+    restart: always
     ports:
       - "5672:5672"  # RabbitMQ default port
       - "15672:15672"  # RabbitMQ Management Console port
@@ -33,6 +34,7 @@ services:
         dockerfile: Dockerfile
     ports:
       - '8080:8080'
+    restart: always
     environment:
       - DB_URL=jdbc:postgresql://postgres-db:5432/amba
       - PRIVATE_KEY=766f6f72664c38514c6541633643706c357467726e4c4c765433487862546b4e
