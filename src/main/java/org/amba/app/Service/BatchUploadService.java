@@ -10,6 +10,7 @@ import org.amba.app.Messaging.RabbitClient;
 import org.amba.app.Repo.ProjectRepo;
 import org.amba.app.Repo.QuestionAuditRepo;
 import org.amba.app.Repo.QuestionRepo;
+import org.amba.app.Util.ImageResize;
 import org.amba.app.Util.MquStatus;
 import org.amba.app.Util.Options;
 import org.amba.app.Util.QuestionMessage;
@@ -139,13 +140,15 @@ public class BatchUploadService {
     }
 
 
-    public void setValuesImg(Question question,String currentCol,byte imgData[],HashMap<Integer,byte[]> optionsImg){
+    public void setValuesImg(Question question,String currentCol,byte imgData[],HashMap<Integer,byte[]> optionsImg) throws IOException {
         Assert.isTrue(imgData.length>0,"No Image Found for `"+currentCol+"`");
         if(currentCol.equalsIgnoreCase("Question Image")){
+            imgData = ImageResize.resizeImage(imgData,400,400);
             question.setQuestion(imgData);
         }
         else if(currentCol.startsWith("Option Image".toLowerCase())){
             int optionIndex = Integer.parseInt(currentCol.split("Option Image ".toLowerCase())[1]);
+            imgData = ImageResize.resizeImage(imgData,400,400);
             optionsImg.put(optionIndex,imgData);
         }
     }
@@ -160,7 +163,7 @@ public class BatchUploadService {
         Assert.isTrue(answerIndex<=options.size(),
                 "Answer index for Question `"+question.getQuestionText()+"` is Greater than No of Options ");
         for(int i=1;i<=options.size();i++){
-            System.out.println(options.get(i)+" --- "+ Arrays.toString(optionsImg.get(i)));
+           // System.out.println(options.get(i)+" --- "+ Arrays.toString(optionsImg.get(i)));
             if( options.get(i)!=null && optionsImg.get(i)==null){
                 throw new RuntimeException("Option " + i + " is Empty and Option Image " + i + " has data for Question " + question.getQuestionText());
             }
