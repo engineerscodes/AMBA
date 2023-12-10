@@ -12,6 +12,7 @@ import org.amba.app.Repo.TypeRepo;
 import org.amba.app.Repo.UserRepo;
 import org.amba.app.Service.QuestionService;
 import org.amba.app.Service.UserService;
+import org.amba.app.Util.ImageResize;
 import org.amba.app.Util.Options;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,7 +110,14 @@ public class QuestionController {
         if(answer_id>=options.size())
             return ResponseEntity.badRequest().body("Answer Index is greater than no of options");
        // Question question =  new Question(UUID.randomUUID(),p,questionImage.getBytes(),options,answer_id);
-        Question question = Question.builder().project(p).questionText(question_text).question(questionImage.getBytes()).options(options).answerID(answer_id).build();
+        options.forEach(option->{
+            try {
+                option.setAnswerImage(ImageResize.resizeImage(option.getAnswerImage(),400,400));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        Question question = Question.builder().project(p).questionText(question_text).question(ImageResize.resizeImage(questionImage.getBytes(),400,440)).options(options).answerID(answer_id).build();
         return ResponseEntity.ok(questionService.addNewQuestion(question));
     }
 
