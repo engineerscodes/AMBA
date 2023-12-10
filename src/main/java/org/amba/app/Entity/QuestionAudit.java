@@ -1,5 +1,6 @@
 package org.amba.app.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,6 +27,7 @@ public class QuestionAudit {
     @Enumerated(EnumType.STRING)
     private MquStatus uploadStatus;
 
+    @JsonIgnore
     private String filePath;
 
     private LocalDateTime dateTime;
