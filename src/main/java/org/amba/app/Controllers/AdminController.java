@@ -35,6 +35,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/admin")
@@ -56,6 +57,7 @@ public class AdminController {
 
     @Autowired
     QuestionAuditRepo questionAuditRepo;
+
 
     @PostMapping("/add")
     private ResponseEntity<String> makeUserAdmin(@RequestBody Map<String, String> userMap){
@@ -205,7 +207,7 @@ public class AdminController {
         return ResponseEntity.ok(userMapList);
     }
 
-    @PostMapping(value = "/uploadQuestions",consumes =MediaType.MULTIPART_FORM_DATA_VALUE,produces = "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+    @PostMapping(value = "/uploadQuestions",consumes ={MediaType.MULTIPART_FORM_DATA_VALUE},produces = "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
     private ResponseEntity<Object> batchUpload(MultipartFile file){
         try {
              return ResponseEntity.ok().body(batchUploadService.validateExcelSheet(file,AdminController.class).toByteArray());
@@ -229,5 +231,10 @@ public class AdminController {
         } catch (FileNotFoundException e) {
             return ResponseEntity.internalServerError().body("Can't Find the File with the above name");
         }
+    }
+
+    @GetMapping("/massiveUpload/status")
+    private List<QuestionAudit> getUploadStatus(){
+        return questionAuditRepo.findAll().stream().filter(e->e.getDateTime()!=null).sorted(Comparator.comparing(QuestionAudit::getDateTime)).toList();
     }
 }
