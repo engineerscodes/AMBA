@@ -1,6 +1,8 @@
 package org.amba.app.Service;
 
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.amba.app.Dto.QuestionDTO;
 import org.amba.app.Entity.Project;
 import org.amba.app.Entity.Question;
@@ -29,6 +31,10 @@ public class QuestionService {
     @Autowired
     private QuestionRepo questionRepo;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
+
 
     public Project checkValidProject(String projectID){
         Optional<Project> p;
@@ -42,8 +48,11 @@ public class QuestionService {
     }
 
 
+    @Transactional
     public Question addNewQuestion(Question question){
-        return questionRepo.save(question);
+        questionRepo.saveAndFlush(question);
+        entityManager.refresh(question); //need because question number will be null if not refreshed
+        return question;
     }
 
     @Transactional
