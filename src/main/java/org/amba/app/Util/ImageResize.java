@@ -28,7 +28,7 @@ public class ImageResize {
 
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(resizedImage, "jpg", baos);
+        ImageIO.write(resizedImage, "png", baos);
         return baos.toByteArray();
     }
 }

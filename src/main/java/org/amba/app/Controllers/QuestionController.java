@@ -1,6 +1,7 @@
 package org.amba.app.Controllers;
 
 
+import io.jsonwebtoken.lang.Assert;
 import org.amba.app.Dto.QuestionDTO;
 import org.amba.app.Entity.Project;
 import org.amba.app.Entity.Question;
@@ -112,12 +113,14 @@ public class QuestionController {
        // Question question =  new Question(UUID.randomUUID(),p,questionImage.getBytes(),options,answer_id);
         options.forEach(option->{
             try {
-                option.setAnswerImage(ImageResize.resizeImage(option.getAnswerImage(),400,400));
-            } catch (IOException e) {
+                byte newImg[] = ImageResize.resizeImage(option.getAnswerImage(),400,400);
+                Assert.isTrue(newImg.length>0,"Image can't be Null");
+                option.setAnswerImage(newImg);
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         });
-        Question question = Question.builder().project(p).questionText(question_text).question(ImageResize.resizeImage(questionImage.getBytes(),400,440)).options(options).answerID(answer_id).build();
+        Question question = Question.builder().project(p).questionText(question_text).question(ImageResize.resizeImage(questionImage.getBytes(),400,400)).options(options).answerID(answer_id).build();
         return ResponseEntity.ok(questionService.addNewQuestion(question));
     }
 
