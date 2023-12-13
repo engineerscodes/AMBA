@@ -90,7 +90,8 @@ public class BatchUploadService {
                 HashMap<Integer, byte[]> optionsImg = new HashMap<>();
                 HashMap<Integer, String> options = new HashMap<>();
                 List<XWPFTableCell> cell = xwpfTableRow.getTableCells();
-                for (int colIndex = 0; colIndex < cell.size(); colIndex++) {
+                int minSize = Math.min(cell.size(), IndexedCol.size());
+                for (int colIndex = 0; colIndex < minSize; colIndex++) {
                     XWPFTableCell xwpfTableCell = cell.get(colIndex);
                     if (xwpfTableCell != null)
                         if (IndexedCol.get(colIndex).toLowerCase().contains("image")) {
