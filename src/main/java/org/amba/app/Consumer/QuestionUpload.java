@@ -34,27 +34,34 @@ public class QuestionUpload {
    @RabbitListener(queues = {"Massive_Question_Upload"})
     public void onUserRegistration(QuestionMessage message) throws IOException {
        log.info("New File with id {} Received at {} ",message.getQuestionUploadId(),message.getTime());
-      QuestionAudit qa = questionAuditRepo.findById(message.getQuestionUploadId())
-              .orElseThrow(()->new RuntimeException("No record found"));
-       qa.setUploadStatus(MquStatus.PROCESSING);
-       questionAuditRepo.saveAndFlush(qa);
-       Assert.isTrue(qa.getQuestionID()!=null,"Question Upload ID can't be Null");
-       String fileName = "QuestionUpload_"+qa.getQuestionID()+"_"+".docx";
-       MultipartFile file = new MockMultipartFile(
-               fileName,         // Original file name
-               fileName,         // Desired file name
-               "application/vnd.openxmlformats-officedocument.wordprocessingml.document",  // Content type
-               message.getFileData()            // Byte[] array
-       );
+       try {
+           QuestionAudit qa = questionAuditRepo.findById(message.getQuestionUploadId())
+                   .orElseThrow(() -> new RuntimeException("No record found"));
+           qa.setUploadStatus(MquStatus.PROCESSING);
+           questionAuditRepo.saveAndFlush(qa);
+           Assert.isTrue(qa.getQuestionID() != null, "Question Upload ID can't be Null");
+           String fileName = "QuestionUpload_" + qa.getQuestionID() + "_" + ".docx";
+           MultipartFile file = new MockMultipartFile(
+                   fileName,         // Original file name
+                   fileName,         // Desired file name
+                   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",  // Content type
+                   message.getFileData()            // Byte[] array
+           );
 
-       FileOutputStream fout = new FileOutputStream("src//main//resources//Files//QuestionUpload//"+fileName);
-       ByteArrayOutputStream out = batchUploadService.validateExcelSheet(file, QuestionUpload.class);
-       out.writeTo(fout);
-       out.close();
-       fout.close();
-       qa.setUploadStatus(MquStatus.DONE);
-       questionAuditRepo.saveAndFlush(qa);
-       log.info("Uploaded ENDED ......");
+           FileOutputStream fout = new FileOutputStream("src//main//resources//Files//QuestionUpload//" + fileName);
+           ByteArrayOutputStream out = batchUploadService.validateExcelSheet(file, QuestionUpload.class);
+           out.writeTo(fout);
+           out.close();
+           fout.close();
+           qa.setUploadStatus(MquStatus.DONE);
+           questionAuditRepo.saveAndFlush(qa);
+           log.info("Uploaded ENDED ......");
+       }catch (Exception e){
+           QuestionAudit qa = questionAuditRepo.findById(message.getQuestionUploadId())
+                   .orElseThrow(() -> new RuntimeException("No record found"));
+           qa.setUploadStatus(MquStatus.ERROR);
+           questionAuditRepo.saveAndFlush(qa);
+       }
    }
 
 }
