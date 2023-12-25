@@ -39,6 +39,7 @@ public class SecurityConfiguration {
     })         /*Need to add only admin usr to Admin routes - needs testing */
                .authorizeHttpRequests(auth ->
                        auth.requestMatchers("/auth/**").permitAll()
+                               .requestMatchers("/admin/**").hasAuthority("ADMIN")
                                .anyRequest().authenticated()
                )
                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
