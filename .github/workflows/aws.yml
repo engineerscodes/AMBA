@@ -42,7 +42,7 @@ permissions:
 
 jobs:
   build_and_push:
-    name: Deploy
+    name: build_and_push
     runs-on: ubuntu-latest
     environment: production
 
