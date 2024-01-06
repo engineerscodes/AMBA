@@ -1,19 +1,18 @@
 package org.amba.app.Controllers;
 
 
+import jakarta.validation.constraints.Email;
 import org.amba.app.Dto.QuestionDTO;
-import org.amba.app.Dto.ReportDTO;
 import org.amba.app.Dto.UserDTO;
 import org.amba.app.Entity.QuestionAudit;
 import org.amba.app.Entity.Report;
 import org.amba.app.Entity.User;
 import org.amba.app.Repo.QuestionAuditRepo;
+import org.amba.app.Repo.QuestionRepo;
 import org.amba.app.Repo.ReportAdminRepo;
 import org.amba.app.Repo.UserRepo;
 import org.amba.app.Security.JwtService;
-import org.amba.app.Service.AuthenticationService;
 import org.amba.app.Service.BatchUploadService;
-import org.amba.app.Util.Options;
 import org.amba.app.Util.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +24,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.Assert;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,10 +34,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/admin")
+@Validated
 public class AdminController {
 
     Logger log = LoggerFactory.getLogger(AdminController.class);
@@ -237,4 +236,11 @@ public class AdminController {
     private List<QuestionAudit> getUploadStatus(){
         return questionAuditRepo.findAll().stream().filter(e->e.getDateTime()!=null).sorted(Comparator.comparing(QuestionAudit::getDateTime)).toList();
     }
+
+    @GetMapping("/answer")
+    private List<QuestionDTO> getUserAnswer(@RequestParam @Email(message = "Invalid Email") String email ){
+         // TODO
+         return  null;
+    }
+
 }
