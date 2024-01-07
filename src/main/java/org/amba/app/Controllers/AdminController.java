@@ -1,12 +1,10 @@
 package org.amba.app.Controllers;
 
 
-import jakarta.validation.constraints.Email;
+
 import org.amba.app.Dto.QuestionDTO;
 import org.amba.app.Dto.UserDTO;
-import org.amba.app.Entity.QuestionAudit;
-import org.amba.app.Entity.Report;
-import org.amba.app.Entity.User;
+import org.amba.app.Entity.*;
 import org.amba.app.Repo.QuestionAuditRepo;
 import org.amba.app.Repo.QuestionRepo;
 import org.amba.app.Repo.ReportAdminRepo;
@@ -37,7 +35,6 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/admin")
-@Validated
 public class AdminController {
 
     Logger log = LoggerFactory.getLogger(AdminController.class);
@@ -56,6 +53,9 @@ public class AdminController {
 
     @Autowired
     QuestionAuditRepo questionAuditRepo;
+
+    @Autowired
+    QuestionRepo questionRepo;
 
 
     @PostMapping("/add")
@@ -238,9 +238,21 @@ public class AdminController {
     }
 
     @GetMapping("/answer")
-    private List<QuestionDTO> getUserAnswer(@RequestParam @Email(message = "Invalid Email") String email ){
-         // TODO
-         return  null;
+    private Object getUserAnswer(@RequestParam String email,@RequestParam UUID prjID){
+        if(email.isBlank()) return ResponseEntity.badRequest().body("Email Can't be Empty");
+        try {
+            Optional<User> user = userRepo.findByEmail(email);
+            Assert.isTrue(user.isPresent(), "No user Found");
+            List<UUID> questionsCompleted = user.get().getQuestionsCompleted();
+            if(questionsCompleted == null) return ResponseEntity.ok("No Answer found for the User");
+            List<Question> questionsInProject = questionRepo.userAnsweredQuestions(prjID);
+            return questionsInProject.stream()
+                    .filter(q -> questionsCompleted.contains(q.getQuestionID()))
+                    .toList();
+        }catch (Exception e){
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 }
