@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -25,6 +26,10 @@ public interface QuestionRepo  extends  JpaRepository<Question, UUID> {
 
     @Query(value = "select count(*) from Question q where q.fk_project_uuid = :projectID",nativeQuery = true)
     Optional<Long> noOfQuestionByProject(@Param("projectID") UUID projectID);
+
+    @Query(value = "select * from Question q where q.fk_project_uuid = :projectID",nativeQuery = true)
+    @Transactional
+    List<Question> userAnsweredQuestions(@Param("projectID") UUID projectID);
 
     @Query(value = "select q.question_number from Question q where q.questionID in :questionId and q.fk_project_uuid = :projectID",nativeQuery = true)
     List<BigInteger> findAllQuestionNumber(@Param("questionId") List<UUID> questionID,@Param("projectID") UUID projectID);
