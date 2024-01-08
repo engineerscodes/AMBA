@@ -237,7 +237,7 @@ public class AdminController {
         return questionAuditRepo.findAll().stream().filter(e->e.getDateTime()!=null).sorted(Comparator.comparing(QuestionAudit::getDateTime)).toList();
     }
 
-    @GetMapping("/answer")
+    @GetMapping("/answer") //todo Pagination needed
     private Object getUserAnswer(@RequestParam String email,@RequestParam UUID prjID){
         if(email.isBlank()) return ResponseEntity.badRequest().body("Email Can't be Empty");
         try {
@@ -245,7 +245,7 @@ public class AdminController {
             Assert.isTrue(user.isPresent(), "No user Found");
             List<UUID> questionsCompleted = user.get().getQuestionsCompleted();
             if(questionsCompleted == null) return ResponseEntity.ok("No Answer found for the User");
-            List<Question> questionsInProject = questionRepo.userAnsweredQuestions(prjID);
+            List<Question> questionsInProject = questionRepo.userAnsweredQuestions(prjID); //here mostly
             return questionsInProject.stream()
                     .filter(q -> questionsCompleted.contains(q.getQuestionID()))
                     .toList();
