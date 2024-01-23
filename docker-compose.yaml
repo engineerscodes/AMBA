@@ -13,15 +13,15 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=naveen
       - POSTGRES_DB=amba
-    ports:
-      - '5432:5432'
+    #ports:
+    #  - '5432:5432'
   rabbitmq_amba:
     image: rabbitmq:3-management
     container_name: rabbitmq_amba
     restart: always
-    ports:
-      - "5672:5672"  # RabbitMQ default port
-      - "15672:15672"  # RabbitMQ Management Console port
+    #ports:
+      #- "5672:5672"  # RabbitMQ default port
+      #- "15672:15672"  # RabbitMQ Management Console port
     networks:
       - amba-network
     environment:
@@ -29,6 +29,7 @@ services:
       - RABBITMQ_DEFAULT_PASS=amba_ngo_india
 
   ambabackend:
+    image: ambabackend.azurecr.io/ambabackend
     build:
         context: .
         dockerfile: Dockerfile
