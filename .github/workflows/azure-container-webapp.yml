@@ -25,6 +25,7 @@ jobs:
       - name : Build & Push
         run: |
              docker compose build
+             docker images
              docker push ${{ secrets.ACR_ENDPOINT }}/${{ env.IMAGE_NAME }}:latest
           
      # - name: Build & Push
