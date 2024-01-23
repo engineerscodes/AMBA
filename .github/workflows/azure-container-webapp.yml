@@ -26,7 +26,7 @@ jobs:
         run: |
              docker compose build
              docker images
-             docker push ${{ secrets.ACR_ENDPOINT }}/${{ env.IMAGE_NAME }}:latest
+             docker push ambabackend.azurecr.io/ambabackend:latest
           
      # - name: Build & Push
      #   uses: docker/build-push-action@v2
