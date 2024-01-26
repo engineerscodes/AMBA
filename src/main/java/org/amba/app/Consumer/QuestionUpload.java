@@ -51,6 +51,7 @@ public class QuestionUpload {
            log.info("Saving file {}",fileName);
            FileOutputStream fout = new FileOutputStream("src//main//resources//Files//QuestionUpload//" + fileName);
            ByteArrayOutputStream out = batchUploadService.validateExcelSheet(file, QuestionUpload.class);
+           log.info("Validate Excel sheet");
            out.writeTo(fout);
            out.close();
            fout.close();
