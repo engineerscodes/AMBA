@@ -41,13 +41,14 @@ public class QuestionUpload {
            questionAuditRepo.saveAndFlush(qa);
            Assert.isTrue(qa.getQuestionID() != null, "Question Upload ID can't be Null");
            String fileName = "QuestionUpload_" + qa.getQuestionID() + "_" + ".docx";
+           log.info("File Name : {}",fileName);
            MultipartFile file = new MockMultipartFile(
                    fileName,         // Original file name
                    fileName,         // Desired file name
                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",  // Content type
                    message.getFileData()            // Byte[] array
            );
-
+           log.info("Saving file {}",fileName);
            FileOutputStream fout = new FileOutputStream("src//main//resources//Files//QuestionUpload//" + fileName);
            ByteArrayOutputStream out = batchUploadService.validateExcelSheet(file, QuestionUpload.class);
            out.writeTo(fout);
@@ -61,6 +62,7 @@ public class QuestionUpload {
                    .orElseThrow(() -> new RuntimeException("No record found"));
            qa.setUploadStatus(MquStatus.ERROR);
            questionAuditRepo.saveAndFlush(qa);
+           log.error(e.getMessage());
        }
    }
 
