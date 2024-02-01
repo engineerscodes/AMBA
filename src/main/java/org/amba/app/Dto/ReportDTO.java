@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Builder
 @Data
@@ -22,6 +23,9 @@ public class ReportDTO {
 
     @NotNull
     String project;
+
+    @NotNull
+    UUID projectUuid;
 
     @NotNull
     String type;

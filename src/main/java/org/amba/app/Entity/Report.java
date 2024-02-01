@@ -34,6 +34,9 @@ public class Report {
     String Project;
 
     @Column(nullable = false)
+    UUID projectUuid;
+
+    @Column(nullable = false)
     String type;
 
     @JdbcTypeCode(SqlTypes.JSON)

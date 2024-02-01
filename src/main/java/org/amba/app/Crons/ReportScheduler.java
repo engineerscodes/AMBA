@@ -74,6 +74,7 @@ public class ReportScheduler {
         Optional<Long> totalQuestion = questionRepo.noOfQuestionByProject(e.getId());
         List<BigInteger>  questionNumber = questionRepo.findAllQuestionNumber(questionUUID,e.getId());
         ReportDTO reportDTO = adminReportMapper.from(e,user,questionNumber, LocalDateTime.now(),totalQuestion.orElse(0L));
+
         reportAdminRepo.save(adminReportMapper.fromDTO(reportDTO));
         reportService.addRow(document.getWorkbook(),document.getSheet(),document.getCreateHelper(),reportDTO);
         });
@@ -82,7 +83,7 @@ public class ReportScheduler {
         Set<UUID> answeredProjects = questionCountByProjects.stream().map(QuestionCount::getId).collect(Collectors.toSet());
             projects.forEach(e -> {
             if(!answeredProjects.contains(e.getId())){
-                reportAdminRepo.save(Report.builder().Project(e.getProjectName())
+                reportAdminRepo.save(Report.builder().Project(e.getProjectName()).projectUuid(e.getId())
                         .type(e.getType())
                         .email(user.getEmail()).questionNumber(null)
                                 .score(0).totalQuestions(0)
