@@ -258,8 +258,18 @@ public class AdminController {
     }
 
     @GetMapping("/question") //todo get question if user has answered it
-    private ResponseEntity<QuestionDTO> getQuestion(){
-        return null;
+    private ResponseEntity<Question> getQuestion(@RequestParam UUID questionUuid,@RequestParam String email){
+        Optional<Question> q = questionRepo.findById(questionUuid);
+        Assert.isTrue(q.isPresent(),"Invalid Question UUID ");
+
+        Optional<User> user = userRepo.findByEmail(email);
+        Assert.isTrue(user.isPresent(),"Invalid User Email");
+        List <UUID> questionCompleted = user.get().getQuestionsCompleted();
+        if(questionCompleted == null) questionCompleted = new ArrayList<>();
+        Optional<UUID> result = questionCompleted.stream().parallel().filter(e-> e.equals(questionUuid)).findFirst();
+        Assert.isTrue(result.isPresent(),"User didn't Answer the question");
+
+        return ResponseEntity.ok(q.get());
     }
 
 }
