@@ -246,14 +246,20 @@ public class AdminController {
             Assert.isTrue(user.isPresent(), "No user Found");
             List<UUID> questionsCompleted = user.get().getQuestionsCompleted();
             if(questionsCompleted == null) return ResponseEntity.ok("No Answer found for the User");
-            List<Question> questionsInProject = questionRepo.userAnsweredQuestions(prjID); //here mostly
+            List<UUID> questionsInProject = questionRepo.userAnsweredQuestions(prjID); //here mostly
             return questionsInProject.stream()
-                    .filter(q -> questionsCompleted.contains(q.getQuestionID()))
+                    .filter(questionsCompleted::contains)
                     .toList();
+            //must just return List of question UUID
         }catch (Exception e){
             log.error(e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/question") //todo get question if user has answered it
+    private ResponseEntity<QuestionDTO> getQuestion(){
+        return null;
     }
 
 }
