@@ -27,9 +27,9 @@ public interface QuestionRepo  extends  JpaRepository<Question, UUID> {
     @Query(value = "select count(*) from Question q where q.fk_project_uuid = :projectID",nativeQuery = true)
     Optional<Long> noOfQuestionByProject(@Param("projectID") UUID projectID);
 
-    @Query(value = "select * from Question q where q.fk_project_uuid = :projectID",nativeQuery = true)
+    @Query(value = "select q.questionid from Question q where q.fk_project_uuid = :projectID",nativeQuery = true)
     @Transactional
-    List<Question> userAnsweredQuestions(@Param("projectID") UUID projectID);
+    List<UUID> userAnsweredQuestions(@Param("projectID") UUID projectID);
 
     @Query(value = "select q.question_number from Question q where q.questionID in :questionId and q.fk_project_uuid = :projectID",nativeQuery = true)
     List<BigInteger> findAllQuestionNumber(@Param("questionId") List<UUID> questionID,@Param("projectID") UUID projectID);
