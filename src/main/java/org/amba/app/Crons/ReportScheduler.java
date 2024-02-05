@@ -52,7 +52,7 @@ public class ReportScheduler {
 
 
 
-    @Scheduled(cron =  "0 45 23 * * *")// will run every day at 10:30 "0 30 22 * * *" //only one thread to run scheduling tasks
+    @Scheduled(cron =  "0 55 23 * * *")// will run every day at 10:30 "0 30 22 * * *" //only one thread to run scheduling tasks
     @Transactional
     public void generateReport() throws IOException {
         log.info("The report generation started {}", new Date());
