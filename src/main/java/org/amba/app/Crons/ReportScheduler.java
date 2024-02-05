@@ -7,6 +7,7 @@ import org.amba.app.Crons.DTO.ProjectCronDTO;
 import org.amba.app.Crons.DTO.QuestionCount;
 import org.amba.app.Crons.DTO.UserCronDTOProjection;
 import org.amba.app.Dto.ReportDTO;
+import org.amba.app.Entity.Question;
 import org.amba.app.Entity.Report;
 import org.amba.app.Mapper.AdminReportMapper;
 import org.amba.app.Repo.ProjectRepo;
@@ -15,6 +16,7 @@ import org.amba.app.Repo.ReportAdminRepo;
 import org.amba.app.Repo.UserRepo;
 import org.amba.app.Service.ReportService;
 import org.amba.app.Util.Doc;
+import org.amba.app.Util.Options;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -50,7 +52,7 @@ public class ReportScheduler {
 
 
 
-    @Scheduled(cron =  "0 30 22 * * *")// will run every day at 10:30 "0 30 22 * * *" //only one thread to run scheduling tasks
+    @Scheduled(cron =  "0 31 22 * * *")// will run every day at 10:30 "0 30 22 * * *" //only one thread to run scheduling tasks
     @Transactional
     public void generateReport() throws IOException {
         log.info("The report generation started {}", new Date());
@@ -78,6 +80,20 @@ public class ReportScheduler {
         reportAdminRepo.save(adminReportMapper.fromDTO(reportDTO));
         reportService.addRow(document.getWorkbook(),document.getSheet(),document.getCreateHelper(),reportDTO);
         });
+
+        questionUUID.forEach(uuid -> {
+           Optional<Question> question = questionRepo.findById(uuid);
+           if(question.isPresent()){
+               byte image[] = question.get().getQuestion();
+               int answerIndex = (int) question.get().getAnswerID();
+               Options option = question.get().getOptions().get(answerIndex);
+               reportService.addRowQuestionSheet(document.getWorkbook(), document.getQuestionCompletedSheet(),
+                       document.getCreateHelper(), image,question.get().getQuestionText(),option.getAnswer(),user.getEmail(),
+                       question.get().getProject().getProjectName(),question.get().getProject().getType().getType(),
+                       question.get().getQuestionNumber());
+           }
+        });
+
 
         // For Projects where User haven't answered
         Set<UUID> answeredProjects = questionCountByProjects.stream().map(QuestionCount::getId).collect(Collectors.toSet());
