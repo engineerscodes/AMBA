@@ -1,10 +1,12 @@
 package org.amba.app.Controllers;
 
 
-
 import org.amba.app.Dto.QuestionDTO;
 import org.amba.app.Dto.UserDTO;
-import org.amba.app.Entity.*;
+import org.amba.app.Entity.Question;
+import org.amba.app.Entity.QuestionAudit;
+import org.amba.app.Entity.Report;
+import org.amba.app.Entity.User;
 import org.amba.app.Repo.QuestionAuditRepo;
 import org.amba.app.Repo.QuestionRepo;
 import org.amba.app.Repo.ReportAdminRepo;
@@ -23,7 +25,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -271,5 +272,21 @@ public class AdminController {
 
         return ResponseEntity.ok(q.get());
     }
+
+
+    @GetMapping(value = "downloadReport",produces ="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    private ResponseEntity<Object> downloadReport(@RequestParam String date) throws IOException {
+        String fileName = "StudentReport"+date;
+        File dir = new File("src//main//resources//Files");
+        File[] files = dir.listFiles((dir1, name) -> name.startsWith(fileName) && name.endsWith(".xlsx"));
+        Assert.isTrue(files!=null,"No file Found");
+        if(files.length==0) return ResponseEntity.badRequest().body("No file found");
+        try (FileInputStream inputStream = new FileInputStream(files[0])){ // using try with resource for automatically manages the closing of resources
+            return ResponseEntity.ok(inputStream.readAllBytes());
+        } catch (FileNotFoundException e) {
+            return ResponseEntity.internalServerError().body("Can't Find the File with the above name");
+        }
+    }
+
 
 }
