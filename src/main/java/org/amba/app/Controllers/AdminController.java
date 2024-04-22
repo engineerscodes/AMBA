@@ -280,7 +280,7 @@ public class AdminController {
         File dir = new File("src//main//resources//Files");
         File[] files = dir.listFiles((dir1, name) -> name.startsWith(fileName) && name.endsWith(".xlsx"));
         Assert.isTrue(files!=null,"No file Found ");
-        if(files.length==0) return ResponseEntity.badRequest().body(Arrays.toString(dir.listFiles()));
+        if(files.length==0) return ResponseEntity.badRequest().body("No file found with Given Name");
         try (FileInputStream inputStream = new FileInputStream(files[0])){ // using try with resource for automatically manages the closing of resources
             return ResponseEntity.ok(inputStream.readAllBytes());
         } catch (FileNotFoundException e) {
