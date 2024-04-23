@@ -117,7 +117,7 @@ public class ReportService {
 
     public void save( XSSFWorkbook workbook, XSSFSheet sheet) throws IOException {
         // Resize all columns to fit the content size
-        String pattern = "MM-dd-yyyy";
+        String pattern = "dd-MM-yyyy";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
         String date = simpleDateFormat.format(new Date());
         for(int i = 0; i < columns.size(); i++) {
