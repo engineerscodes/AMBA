@@ -17,6 +17,6 @@ jobs:
                   repo: 'AMBA-FE',
                   event_type: 'triggered_by_repo_a',
                   client_payload: {
-                      amba_branch: 'Test'
+                      amba_branch: '${{github.ref_name}}'
                    }
                 })
