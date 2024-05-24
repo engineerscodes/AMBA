@@ -1,16 +1,12 @@
 name: Deploy Images to FE
 
-env:
-  DOTNET_VERSION: '6.0.x'
-
 on :
   workflow_dispatch:
       inputs:
         name:
          description: "Select Realse Branch"
          default: "master"
-
-
+         
 jobs:
       tigger-frontend : 
         runs-on: ubuntu-latest
