@@ -15,7 +15,7 @@ jobs:
                 github.rest.repos.createDispatchEvent({
                   owner: 'engineerscodes',
                   repo: 'AMBA-FE',
-                  event_type: 'triggered_by_repo_a',
+                  event_type: 'triggered_by_be_repo',
                   client_payload: {
                       amba_branch: '${{github.ref_name}}'
                    }
