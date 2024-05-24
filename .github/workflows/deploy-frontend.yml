@@ -2,10 +2,6 @@ name: Deploy Images to FE
 
 on :
   workflow_dispatch:
-      inputs:
-        name:
-         description: "Select Realse Branch"
-         default: "master"
          
 jobs:
       tigger-frontend : 
@@ -21,6 +17,6 @@ jobs:
                   repo: 'AMBA-FE',
                   event_type: 'triggered_by_repo_a',
                   client_payload: {
-                      amba_branch: ${{github.ref_name}}
+                      amba_branch: 'Test'
                    }
                 })
