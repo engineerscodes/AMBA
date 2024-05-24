@@ -1,0 +1,30 @@
+name: Deploy Images to GHCR
+
+env:
+  DOTNET_VERSION: '6.0.x'
+
+on :
+  workflow_dispatch:
+      inputs:
+        name:
+         description: "Select Realse Branch"
+         default: "master"
+
+
+jobs:
+      tigger-backend : 
+        runs-on: ubuntu-latest
+        steps:
+          - name: Trigger Other Workflow
+            uses: actions/github-script@v6
+            with:
+              github-token: ${{ secrets.GH_TOKEN }}
+              script: |
+                github.rest.repos.createDispatchEvent({
+                  owner: 'engineerscodes',
+                  repo: 'AMBA-FE',
+                  event_type: 'triggered_by_repo_a',
+                  client_payload: {
+                      amba_branch: ${{github.ref_name}}
+                   }
+                })
