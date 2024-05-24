@@ -12,7 +12,7 @@ on :
 
 
 jobs:
-      tigger-backend : 
+      tigger-frontend : 
         runs-on: ubuntu-latest
         steps:
           - name: Trigger Other Workflow
