@@ -16,7 +16,7 @@ jobs:
                 owner: 'engineerscodes',
                 repo: 'AMBA-FE',
                 workflow_id: 'tigger-gha-test.yml',
-                ref:: '${{github.ref_name}}',
+                ref: '${{github.ref_name}}',
                 inputs:  {
                       amba_branch: '${{github.ref_name}}'
                    }
