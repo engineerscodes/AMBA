@@ -12,11 +12,12 @@ jobs:
             with:
               github-token: ${{ secrets.GH_TOKEN }}
               script: |
-                github.rest.repos.createDispatchEvent({
-                  owner: 'engineerscodes',
-                  repo: 'AMBA-FE',
-                  event_type: 'triggered_by_be_repo',
-                  client_payload: {
+                await github.repos.createDispatchEvent({
+                owner: 'engineerscodes',
+                repo: 'AMBA-FE',
+                workflow_id: 'tigger-gha-test.yml'
+                event_type: 'triggered_by_be_repo',
+                client_payload:  {
                       amba_branch: '${{github.ref_name}}'
                    }
-                })
+                });
