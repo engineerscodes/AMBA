@@ -12,7 +12,7 @@ jobs:
             with:
               github-token: ${{ secrets.GH_TOKEN }}
               script: |
-                await github.rest.repos.createWorkflowDispatch({
+                await github.rest.actions.createWorkflowDispatch({
                 owner: 'engineerscodes',
                 repo: 'AMBA-FE',
                 workflow_id: 'tigger-gha-test.yml',
