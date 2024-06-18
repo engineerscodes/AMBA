@@ -17,7 +17,7 @@ jobs:
                 repo: 'AMBA-FE',
                 workflow_id: 'tigger-gha-test.yml',
                 event_type: 'triggered_by_be_repo',
-                client_payload:  {
+                inputs:  {
                       amba_branch: '${{github.ref_name}}'
                    }
                 });
