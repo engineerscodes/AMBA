@@ -15,7 +15,7 @@ jobs:
                 await github.repos.createDispatchEvent({
                 owner: 'engineerscodes',
                 repo: 'AMBA-FE',
-                workflow_id: 'tigger-gha-test.yml'
+                workflow_id: 'tigger-gha-test.yml',
                 event_type: 'triggered_by_be_repo',
                 client_payload:  {
                       amba_branch: '${{github.ref_name}}'
