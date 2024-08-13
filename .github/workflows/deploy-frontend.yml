@@ -1,0 +1,23 @@
+name: Deploy Images to FE
+
+on :
+  workflow_dispatch:
+         
+jobs:
+      tigger-frontend : 
+        runs-on: ubuntu-latest
+        steps:
+          - name: Trigger Other Workflow
+            uses: actions/github-script@v6
+            with:
+              github-token: ${{ secrets.GH_TOKEN }}
+              script: |
+                await github.rest.actions.createWorkflowDispatch({
+                owner: 'engineerscodes',
+                repo: 'AMBA-FE',
+                workflow_id: 'tigger-gha-test.yml',
+                ref: '${{github.ref_name}}',
+                inputs:  {
+                      amba_branch: '${{github.ref_name}}'
+                   }
+                });
