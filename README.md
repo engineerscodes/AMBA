@@ -45,6 +45,10 @@ create table question (
 5) Add question using http://localhost:4200/admin/questions
 
 
+# Don't Turn on spring.threads.virtual.enabled=true
+![image](https://github.com/user-attachments/assets/254ed6a5-2a1a-4338-9eb8-5c6fa8dfae27)
+
+
 # DOCKER IMG
 1) docker-compose -f docker-compose.yaml up --build
 
