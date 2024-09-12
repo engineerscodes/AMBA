@@ -1,1 +1,21 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Elastic Container Registory Repository using Cloudformation
 
+#------------------------
+#   PARAMETERS
+#------------------------
+Parameters:
+  repoName: 
+    Description: Name for ecr repo 
+    Type: String
+
+#------------------------
+#   RESOURCES
+#------------------------ 
+Resources:
+  ecrRepo:
+    Type: AWS::ECR::Repository
+    Properties: 
+      RepositoryName: !Sub ${repoName}-repo
+      ImageScanningConfiguration: 
+        ScanOnPush: true
