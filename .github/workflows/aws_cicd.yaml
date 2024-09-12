@@ -38,8 +38,8 @@ jobs:
         echo "Environment name: $ENVIRONMENT"
         echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
 
-    - name: Deploy Amazon EKS Cluster
-      id: eks-cluster
+    - name: Deploy infra
+      id: ecr-infra
       uses: aws-actions/aws-cloudformation-github-deploy@master
       with:
         name: ${{ steps.env-name.outputs.environment }}-cluster
