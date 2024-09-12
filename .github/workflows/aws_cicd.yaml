@@ -1,4 +1,4 @@
-name: Deploy Cluster
+name: Deploy AWS CICD
 
 on:
   workflow_dispatch:
@@ -43,4 +43,4 @@ jobs:
         template: ./aws/infra.yml
         no-fail-on-empty-changeset: "1"
         parameter-overrides: >-
-          repoName=AMBA_BE_TEST
+          repoName=hero-api
