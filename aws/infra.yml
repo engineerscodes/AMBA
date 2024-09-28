@@ -19,3 +19,14 @@ Resources:
       RepositoryName: !Sub ${repoName}-repo
       ImageScanningConfiguration: 
         ScanOnPush: true
+   myLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupClass: "test"
+      LogGroupName: "test"
+      RetentionInDays: 7
+      Tags: 
+        - aws_test
+
+   
+      
