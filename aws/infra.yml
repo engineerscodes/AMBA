@@ -19,10 +19,17 @@ Resources:
       RepositoryName: !Sub ${repoName}-repo
       ImageScanningConfiguration: 
         ScanOnPush: true
-  myLogGroup: 
-    Type: AWS::Logs::LogGroup
-    Properties: 
-      RetentionInDays: 7
+   myLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        LogGroupClass: "INFREQUENT_ACCESS"
+        LogGroupName: "test"
+        RetentionInDays: 7
+        Tags: 
+          - Key: "app"
+            Value: "amba"
+          - Key: "side"
+            Value: "be"
 
    
       
