@@ -23,8 +23,8 @@ Resources:
       Type: AWS::Logs::LogGroup
       Properties:
         LogGroupClass: "INFREQUENT_ACCESS"
-        LogGroupName: "test"
-        RetentionInDays: 7
+        LogGroupName: "ambaBeqa"
+        RetentionInDays: 14
         Tags: 
           - Key: "app"
             Value: "amba"
