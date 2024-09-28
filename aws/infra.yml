@@ -26,8 +26,10 @@ Resources:
       LogGroupName: "test"
       RetentionInDays: 7
       Tags: 
-         Key: "app"
-         Value: "test"
+        - Key: "app"
+          Value: "amba"
+        - Key: "side"
+          Value: "be"
 
 
    
