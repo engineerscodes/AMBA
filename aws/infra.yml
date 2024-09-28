@@ -26,7 +26,9 @@ Resources:
       LogGroupName: "test"
       RetentionInDays: 7
       Tags: 
-        - aws_test
+         Key: "app"
+         Value: "test"
+
 
    
       
