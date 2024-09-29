@@ -42,5 +42,6 @@ jobs:
         name: ${{ steps.env-name.outputs.environment }}-api-qa
         template: ./aws/infra.yml
         no-fail-on-empty-changeset: "1"
+        capabilities: CAPABILITY_NAMED_IAM 
         parameter-overrides: >-
           repoName=hero-api
