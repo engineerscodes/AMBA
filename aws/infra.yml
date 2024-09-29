@@ -33,7 +33,7 @@ Resources:
   MyECSTaskRole:
     Type: "AWS::IAM::Role"
     Properties: 
-      RoleName: "amba-be-qa"
+      RoleName: "naveen-be-qa"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
